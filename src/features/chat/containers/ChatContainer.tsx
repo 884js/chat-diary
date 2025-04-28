@@ -6,7 +6,7 @@ import { useChatRoomDetail } from "@/features/chat/hooks/useChatRoomDetail";
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { SupabaseApi } from '@/lib/supabase/api';
 import { createClient } from '@/lib/supabase/client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type ChatContainerProps = {
   id: string;
@@ -15,8 +15,8 @@ type ChatContainerProps = {
 export const ChatContainer = ({ id }: ChatContainerProps) => {
   const { currentUser } = useCurrentUser();
   const [inputHeight, setInputHeight] = useState(192); // 初期高さは仮
-
-  const availableHeight = `calc(100dvh - ${inputHeight}px)`;
+  const [viewportHeight, setViewportHeight] = useState(0);
+  const availableHeight = `calc(${viewportHeight}px - ${inputHeight}px)`;
 
   const { chatRoom, isLoading, refetch } = useChatRoomDetail({
     id,
@@ -65,6 +65,22 @@ export const ChatContainer = ({ id }: ChatContainerProps) => {
     }
   };
 
+  useEffect(() => {
+    const func = () => {
+      const vv = window.visualViewport;
+      setViewportHeight(vv?.height ?? 0);
+    };
+
+    window.addEventListener('resize', func);
+    window.addEventListener('orientationchange', func);
+    func();
+
+    return () => {
+      window.removeEventListener('resize', func);
+      window.removeEventListener('orientationchange', func);
+    };
+  }, []);
+
   if (!chatRoom) return null;
 
   return (
@@ -88,7 +104,6 @@ export const ChatContainer = ({ id }: ChatContainerProps) => {
       </div>
       {/* 入力部分 */}
       <ChatInput
-        chatRoomId={chatRoom.id}
         onSend={handleSendMessage}
         isDisabled={isSendMessageDisabled}
         onImageSelect={handleImageSelect}

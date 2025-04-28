@@ -22,7 +22,6 @@ const formatFileSize = (bytes: number): string => {
 };
 
 interface ChatInputProps {
-  chatRoomId: string;
   onSend: ({
     imagePath,
     message,
@@ -36,7 +35,6 @@ interface ChatInputProps {
 }
 
 export function ChatInput({
-  chatRoomId,
   onSend,
   isDisabled,
   onImageSelect,
