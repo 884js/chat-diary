@@ -39,8 +39,8 @@ export default async function Page() {
       );
     }
 
-    return <ChatContainer token={newChatRoom.data.id} />;
+    return <ChatContainer id={newChatRoom.data.id} />;
   }
 
-  return <ChatContainer token={defaultChatRoom.id} />;
+  return <ChatContainer id={defaultChatRoom.id} />;
 }
