@@ -157,10 +157,12 @@ export function ChatInput({
 
     await onSend({ imagePath, message });
     if (textareaRef.current) {
+      textareaRef.current.blur();
       textareaRef.current.style.height = '40px';
       handleCalcHeight({
         hasImage: false,
         hasError: false,
+        isKeyboardVisible: false,
       });
     }
   };
@@ -199,9 +201,11 @@ export function ChatInput({
   const handleCalcHeight = ({
     hasImage,
     hasError,
+    isKeyboardVisible,
   }: {
     hasImage: boolean;
     hasError: boolean;
+    isKeyboardVisible: boolean;
   }) => {
     if (!textareaRef.current) return;
 
@@ -226,6 +230,7 @@ export function ChatInput({
     handleCalcHeight({
       hasImage: !!selectedImage,
       hasError: !!uploadError,
+      isKeyboardVisible,
     });
   }, [message, imagePreviewUrl, uploadError, isKeyboardVisible]);
 
