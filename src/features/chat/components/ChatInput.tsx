@@ -28,10 +28,10 @@ interface ChatInputProps {
   }: {
     imagePath: string | undefined;
     message: string;
-  }) => void;
+  }) => Promise<void>;
   isDisabled: boolean;
   onImageSelect?: (file: File) => Promise<string | undefined>;
-  onHeightChange?: (height: number) => void; // ★追加
+  onHeightChange: (height: number) => void;
 }
 
 export function ChatInput({
@@ -143,6 +143,10 @@ export function ChatInput({
     setMessage('');
 
     await onSend({ imagePath, message });
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '40px';
+      handleCalcHeight();
+    }
   };
 
   // キーボードイベントの処理
@@ -176,23 +180,28 @@ export function ChatInput({
     return 'メッセージを入力...';
   }, [isDisabled, isUploading]);
 
+  const handleCalcHeight = () => {
+    if (!textareaRef.current) return;
+
+    const textareaHeight = textareaRef.current.scrollHeight;
+    const additionalHeight = textareaHeight > 150 ? 150 : textareaHeight;
+    const bottomPadding = isKeyboardVisible ? 0 : 64;
+
+    let height = 78 + bottomPadding + additionalHeight; // Textareaと送信ボタンなどのベース高さ
+
+    if (selectedImage) {
+      height += 150; // 画像プレビューぶん
+    }
+
+    if (uploadError) {
+      height += 40; // エラー文ぶん（おおよその高さ）
+    }
+    onHeightChange(height);
+  };
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    if (textareaRef.current && onHeightChange) {
-      const textareaHeight = textareaRef.current.scrollHeight;
-      const additionalHeight = textareaHeight > 150 ? 150 : textareaHeight;
-      const bottomPadding = isKeyboardVisible ? 0 : 64;
-      let height = 78 + bottomPadding + additionalHeight; // Textareaと送信ボタンなどのベース高さ
-
-      if (selectedImage) {
-        height += 150; // 画像プレビューぶん
-      }
-
-      if (uploadError) {
-        height += 40; // エラー文ぶん（おおよその高さ）
-      }
-      onHeightChange(height);
-    }
+    handleCalcHeight();
   }, [message, imagePreviewUrl, uploadError, isKeyboardVisible]);
 
   return (

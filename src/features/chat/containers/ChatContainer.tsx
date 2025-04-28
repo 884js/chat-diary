@@ -6,7 +6,7 @@ import { useChatRoomDetail } from "@/features/chat/hooks/useChatRoomDetail";
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { SupabaseApi } from '@/lib/supabase/api';
 import { createClient } from '@/lib/supabase/client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 type ChatContainerProps = {
   id: string;
@@ -16,7 +16,10 @@ export const ChatContainer = ({ id }: ChatContainerProps) => {
   const { currentUser } = useCurrentUser();
   const [inputHeight, setInputHeight] = useState(192); // 初期高さは仮
   const [viewportHeight, setViewportHeight] = useState(0);
-  const availableHeight = `calc(${viewportHeight}px - ${inputHeight}px)`;
+  const availableHeight = useMemo(
+    () => `calc(${viewportHeight}px - ${inputHeight}px)`,
+    [viewportHeight, inputHeight]
+  );
 
   const { chatRoom, isLoading, refetch } = useChatRoomDetail({
     id,
@@ -83,6 +86,8 @@ export const ChatContainer = ({ id }: ChatContainerProps) => {
 
   if (!chatRoom) return null;
 
+  if (viewportHeight === 0) return null;
+
   return (
     <div className="overflow-hidden">
       {/* ヘッダー */}
@@ -99,7 +104,6 @@ export const ChatContainer = ({ id }: ChatContainerProps) => {
           messages={chatRoom?.chat_room_messages || []}
           isOwner={isOwner}
           isChatEnded={false}
-          containerHeight={availableHeight}
         />
       </div>
       {/* 入力部分 */}

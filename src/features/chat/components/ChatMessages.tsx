@@ -1,4 +1,3 @@
-import { useKeyboard } from '@/contexts/KeyboardContext';
 import { formatDate, isSameDay, parseISO } from '@/lib/date-fns';
 import type { ChatRoom, ChatRoomMessage } from '@/lib/supabase/api/chat';
 import { useEffect, useMemo } from 'react';
@@ -11,7 +10,6 @@ type Props = {
   messages: ChatRoomMessage[];
   isChatEnded: boolean;
   isOwner: boolean;
-  containerHeight: string;
 };
 
 // 日付区切り線コンポーネント
@@ -30,10 +28,8 @@ export const ChatMessages = ({
   isLoading,
   messages,
   isOwner,
-  containerHeight,
 }: Props) => {
   const { messagesEndRef, handleScrollToBottom } = useAutoScrollBottom();
-  const { isKeyboardVisible } = useKeyboard();
 
   // メッセージを日付とインデックスでグループ化
   const messagesWithDividers = useMemo(() => {
