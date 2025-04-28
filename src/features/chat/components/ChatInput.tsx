@@ -3,7 +3,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { useKeyboard } from '@/contexts/KeyboardContext';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type React from 'react';
-import { FiAlertCircle, FiImage, FiSend, FiX } from 'react-icons/fi';
+import { FiAlertCircle, FiCamera, FiImage, FiSend, FiX } from 'react-icons/fi';
 
 // 画像アップロード制限
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -46,6 +46,7 @@ export function ChatInput({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { isKeyboardVisible } = useKeyboard();
 
@@ -57,6 +58,14 @@ export function ChatInput({
     setUploadError(null);
     if (fileInputRef.current) {
       fileInputRef.current.click();
+    }
+  };
+
+  // カメラ起動ハンドラー
+  const handleCameraClick = () => {
+    setUploadError(null);
+    if (cameraInputRef.current) {
+      cameraInputRef.current.click();
     }
   };
 
@@ -100,6 +109,9 @@ export function ChatInput({
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = '';
+    }
   };
 
   // 画像選択をキャンセルする
@@ -141,11 +153,15 @@ export function ChatInput({
     }
 
     setMessage('');
+    setSelectedImage(null);
 
     await onSend({ imagePath, message });
     if (textareaRef.current) {
       textareaRef.current.style.height = '40px';
-      handleCalcHeight();
+      handleCalcHeight({
+        hasImage: false,
+        hasError: false,
+      });
     }
   };
 
@@ -180,7 +196,13 @@ export function ChatInput({
     return 'メッセージを入力...';
   }, [isDisabled, isUploading]);
 
-  const handleCalcHeight = () => {
+  const handleCalcHeight = ({
+    hasImage,
+    hasError,
+  }: {
+    hasImage: boolean;
+    hasError: boolean;
+  }) => {
     if (!textareaRef.current) return;
 
     const textareaHeight = textareaRef.current.scrollHeight;
@@ -189,11 +211,11 @@ export function ChatInput({
 
     let height = 78 + bottomPadding + additionalHeight; // Textareaと送信ボタンなどのベース高さ
 
-    if (selectedImage) {
-      height += 150; // 画像プレビューぶん
+    if (hasImage) {
+      height += 128; // 画像プレビューぶん
     }
 
-    if (uploadError) {
+    if (hasError) {
       height += 40; // エラー文ぶん（おおよその高さ）
     }
     onHeightChange(height);
@@ -201,7 +223,10 @@ export function ChatInput({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    handleCalcHeight();
+    handleCalcHeight({
+      hasImage: !!selectedImage,
+      hasError: !!uploadError,
+    });
   }, [message, imagePreviewUrl, uploadError, isKeyboardVisible]);
 
   return (
@@ -245,20 +270,37 @@ export function ChatInput({
       <div className="flex items-end gap-2 max-w-5xl mx-auto">
         {/* 画像選択ボタン */}
         {onImageSelect && !isDisabled && (
-          <button
-            type="button"
-            onClick={handleImageClick}
-            disabled={isUploading}
-            className={`rounded-full w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 transition-colors ${
-              isUploading ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-            aria-label="画像を選択"
-            title={`画像を選択 (最大 ${formatFileSize(MAX_IMAGE_SIZE)})`}
-          >
-            <FiImage size={20} className="text-slate-600" />
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={handleImageClick}
+              disabled={isUploading}
+              className={`rounded-full w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 transition-colors ${
+                isUploading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              aria-label="画像を選択"
+              title={`画像を選択 (最大 ${formatFileSize(MAX_IMAGE_SIZE)})`}
+            >
+              <FiImage size={20} className="text-slate-600" />
+            </button>
+
+            {/* カメラボタン */}
+            <button
+              type="button"
+              onClick={handleCameraClick}
+              disabled={isUploading}
+              className={`md:hidden rounded-full w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 transition-colors ${
+                isUploading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              aria-label="カメラを起動"
+              title="カメラを起動"
+            >
+              <FiCamera size={20} className="text-slate-600" />
+            </button>
+          </>
         )}
 
+        {/* 通常のファイル選択入力 */}
         <input
           type="file"
           ref={fileInputRef}
@@ -267,6 +309,18 @@ export function ChatInput({
           className="hidden"
           disabled={isUploading}
         />
+
+        {/* カメラ用の入力 */}
+        <input
+          type="file"
+          ref={cameraInputRef}
+          onChange={handleImageChange}
+          accept={ALLOWED_IMAGE_TYPES.join(',')}
+          capture="environment"
+          className="hidden"
+          disabled={isUploading}
+        />
+
         <Textarea
           ref={textareaRef}
           value={message}

@@ -266,16 +266,16 @@ export class ChatApi {
   // 画像をアップロードしてURLを取得
   async uploadChatImage({
     file,
-    chatRoomId,
+    userId,
   }: {
     file: File;
-    chatRoomId: string;
+    userId: string;
   }) {
     try {
       // ファイル名を生成（ユニークなIDを使用）
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-      const filePath = `/${chatRoomId}/${fileName}.${fileExt}`;
+      const filePath = `/${userId}/${fileName}.${fileExt}`;
 
       // ファイルをアップロード
       const { data, error } = await this.supabase.storage

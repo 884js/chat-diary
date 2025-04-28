@@ -2,7 +2,7 @@
 
 import { ChatHeader, ChatInput } from '@/features/chat/components';
 import { ChatMessages } from '@/features/chat/components/ChatMessages';
-import { useChatRoomDetail } from "@/features/chat/hooks/useChatRoomDetail";
+import { useChatRoomDetail } from '@/features/chat/hooks/useChatRoomDetail';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { SupabaseApi } from '@/lib/supabase/api';
 import { createClient } from '@/lib/supabase/client';
@@ -18,7 +18,7 @@ export const ChatContainer = ({ id }: ChatContainerProps) => {
   const [viewportHeight, setViewportHeight] = useState(0);
   const availableHeight = useMemo(
     () => `calc(${viewportHeight}px - ${inputHeight}px)`,
-    [viewportHeight, inputHeight]
+    [viewportHeight, inputHeight],
   );
 
   const { chatRoom, isLoading, refetch } = useChatRoomDetail({
@@ -33,12 +33,12 @@ export const ChatContainer = ({ id }: ChatContainerProps) => {
 
   // 画像を選択してアップロードする処理
   const handleImageSelect = async (file: File) => {
-    if (!chatRoom?.id) return;
+    if (!chatRoom?.id || !currentUser) return;
 
     // 画像をアップロード
     const uploadResult = await api.chat.uploadChatImage({
       file,
-      chatRoomId: chatRoom.id,
+      userId: currentUser?.id,
     });
 
     return uploadResult.path || undefined;
