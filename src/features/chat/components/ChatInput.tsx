@@ -182,6 +182,7 @@ export function ChatInput({
     setMessage(textarea.value);
 
     // 高さをリセットして、スクロールの高さに基づいて再設定
+
     textarea.style.height = 'auto';
     textarea.style.height = `${Math.min(textarea.scrollHeight, 150)}px`;
   };

@@ -1,5 +1,5 @@
 import { formatDate, isSameDay, parseISO } from '@/lib/date-fns';
-import type { ChatRoom, ChatRoomMessage } from '@/lib/supabase/api/chat';
+import type { ChatRoom, ChatRoomMessage } from '@/lib/supabase/api/ChatRoom';
 import { useEffect, useMemo } from 'react';
 import { useAutoScrollBottom } from '../hooks/useAutoScrollBottom';
 import { ChatMessage } from './ChatMessage';

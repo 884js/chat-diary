@@ -12,7 +12,7 @@ interface Props {
 
 export const ChatImage = ({
   imageUrl,
-  alt = 'ウェルカムメッセージ画像',
+  alt = '',
   fullWidth = false,
 }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);

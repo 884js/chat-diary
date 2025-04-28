@@ -1,18 +1,16 @@
 'use client';
 
+import { Loader } from '@/components/ui/Loader';
 import { ChatHeader, ChatInput } from '@/features/chat/components';
 import { ChatMessages } from '@/features/chat/components/ChatMessages';
-import { useChatRoomDetail } from '@/features/chat/hooks/useChatRoomDetail';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { SupabaseApi } from '@/lib/supabase/api';
-import { createClient } from '@/lib/supabase/client';
+import { useCurrentUserRoom } from '@/hooks/useCurrentUserRoom';
+import { useSupabase } from '@/hooks/useSupabase';
 import { useEffect, useMemo, useState } from 'react';
 
-type ChatContainerProps = {
-  id: string;
-};
-
-export const ChatContainer = ({ id }: ChatContainerProps) => {
+export const ChatContainer = () => {
+  const { api } = useSupabase();
+  const { chatRoom, isLoadingRoom, refetchRoom } = useCurrentUserRoom();
   const { currentUser } = useCurrentUser();
   const [inputHeight, setInputHeight] = useState(192); // 初期高さは仮
   const [viewportHeight, setViewportHeight] = useState(0);
@@ -21,22 +19,16 @@ export const ChatContainer = ({ id }: ChatContainerProps) => {
     [viewportHeight, inputHeight],
   );
 
-  const { chatRoom, isLoading, refetch } = useChatRoomDetail({
-    id,
-  });
   const isOwner = currentUser ? currentUser.id === chatRoom?.user_id : false;
 
-  const supabase = createClient({ token: id });
-  const api = new SupabaseApi(supabase);
-
-  const isSendMessageDisabled = isLoading;
+  const isSendMessageDisabled = isLoadingRoom;
 
   // 画像を選択してアップロードする処理
   const handleImageSelect = async (file: File) => {
     if (!chatRoom?.id || !currentUser) return;
 
     // 画像をアップロード
-    const uploadResult = await api.chat.uploadChatImage({
+    const uploadResult = await api.chatRoom.uploadChatImage({
       file,
       userId: currentUser?.id,
     });
@@ -56,13 +48,13 @@ export const ChatContainer = ({ id }: ChatContainerProps) => {
     const senderType = isOwner ? 'user' : 'ai';
 
     try {
-      await api.chat.sendMessage({
+      await api.chatRoom.sendMessage({
         content: trimmedMessage,
         sender: senderType,
         imagePath: imagePath,
         senderId: currentUser.id,
       });
-      refetch();
+      refetchRoom();
     } catch (error) {
       console.error('メッセージ送信エラー:', error);
     }
@@ -84,9 +76,9 @@ export const ChatContainer = ({ id }: ChatContainerProps) => {
     };
   }, []);
 
-  if (!chatRoom) return null;
+  if (!chatRoom) return <Loader />;
 
-  if (viewportHeight === 0) return null;
+  if (viewportHeight === 0) return <Loader />;
 
   return (
     <div className="overflow-hidden">
@@ -100,7 +92,7 @@ export const ChatContainer = ({ id }: ChatContainerProps) => {
       >
         <ChatMessages
           chatRoom={chatRoom}
-          isLoading={isLoading}
+          isLoading={isLoadingRoom}
           messages={chatRoom?.chat_room_messages || []}
           isOwner={isOwner}
           isChatEnded={false}

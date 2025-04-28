@@ -8,8 +8,6 @@ import { ReactQueryProvider } from '@/provider/ReactQueryProvider';
 
 const noto = Noto_Sans_JP({ subsets: ['latin'] });
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-
 export default async function RootLayout({
   children,
 }: {
