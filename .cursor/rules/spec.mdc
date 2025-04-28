@@ -1,0 +1,144 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 必ず守ること
+- あなたはプロのReact(Next.js)エンジニアなので、レベルの高いコードを書くこと。
+- データモデル、マイグレーションファイルを変更した場合は、このファイルも更新すること。
+- ファイルを追加・編集した場合は`npm run format`を実行すること。
+- 指示された範囲外の実装を行う場合は、すぐに実装に着手せず、実装方針の確認を必ず行うこと。
+- 新しくコンポーネント、ページ実装を行う場合のデザインは既存のデザインに沿うこと。
+
+# 技術仕様
+
+## 技術スタック
+
+### フレームワーク・コア技術
+- **Next.js 14**: Reactベースのフルスタックフレームワーク（App Router使用）
+- **React 18**: UIライブラリ
+- **TypeScript**: 型安全な開発環境
+- **Cloudflare Workers**: ホスティング・サーバーレス実行環境（OpenNext利用）
+- **Supabase**: バックエンド（データベース・認証・ストレージ）
+
+### スタイリング
+- **TailwindCSS 4**: ユーティリティファーストCSSフレームワーク
+- **framer-motion**: アニメーション
+
+### 状態管理・データフェッチ
+- **React Query (TanStack Query)**: サーバー状態管理
+- **React Context API**: グローバル状態管理
+
+### その他主要ライブラリ
+- **date-fns**: 日付操作
+- **nanoid & uuid**: ユニークID生成
+- **React Icons**: アイコンコンポーネント
+- **@dnd-kit**: ドラッグ＆ドロップ機能
+- **@radix-ui**: アクセシブルなUIプリミティブ
+
+### 開発ツール
+- **Biome**: リンター・フォーマッター
+- **ESLint**: コード品質チェック
+- **Wrangler**: Cloudflareデプロイツール
+
+## ディレクトリ構造
+
+```
+/src
+  /actions         - サーバーアクション
+  /app             - Next.js App Router ページ
+  /components      - 共通コンポーネント
+  /contexts        - Reactコンテキスト
+  /features        - 機能ごとのコンポーネント
+  /hooks           - カスタムフック
+  /lib             - ユーティリティライブラリ
+    /auth          - 認証関連
+    /supabase      - Supabase API
+    /date-fns      - 日付操作
+  /provider        - プロバイダーコンポーネント
+  /utils           - ユーティリティ関数
+  middleware.ts    - Next.js ミドルウェア
+
+/supabase
+  /migrations      - データベースマイグレーション
+```
+
+## アーキテクチャと実装方針
+
+### 1. フロントエンド
+- **Feature-First アーキテクチャ**:
+  - 機能ごとに分離したコンポーネント構造
+  - 各機能は独自のコンポーネント、フック、ユーティリティを持つ
+  - 共通コンポーネントは `/components` に集約
+
+- **責務の分離**:
+  - プレゼンテーションとロジックの分離
+  - カスタムフックによるステート・ロジック抽出
+  - Contextによるグローバル状態管理
+
+### 2. バックエンド（Supabase）
+- **データモデル**:
+  - `chat_rooms`: チャットルーム情報
+  - `chat_room_messages`: メッセージデータ
+  - `chatroom_topic_answers`: トピック回答
+	- `receiver_topics`: チャットの目的テーブル
+  - `receiver_questions`: 受信者から送信者への質問
+  - `chatroom_answers`: 質問への回答
+  - `chat_settings`: ユーザー設定
+  - `chat_room_evaluations`: ユーザー評価
+  - `user_blocks`: ユーザーブロック
+
+- **リアルタイム機能**:
+  - Supabaseのリアルタイムサブスクリプション
+  - チャットメッセージの即時反映
+  - 未読通知システム
+
+### 3. 認証・セキュリティ
+- **X (Twitter) OAuth認証**:
+  - Supabase認証を利用
+  - ミドルウェアによる保護されたルート
+
+### 4. 開発・デプロイフロー
+- **ローカル開発**: `npm run dev`
+- **ビルド**: `npm run build`
+- **デプロイ**: Cloudflare Workersへのデプロイ
+- **マイグレーション**: Supabase migrationツール
+
+### 5. クライアント・データフォーマット
+- **APIレスポンスのTypeScript型**:
+  - Supabase型生成ツールによる自動生成
+  - レスポンス型と使用型の一致
+
+### 6. パフォーマンス最適化
+- **サーバーサイドレンダリング (SSR)**
+- **キャッシュ戦略** (React Query)
+- **画像最適化** (Next.js Image)
+
+## コーディング規約
+### 実装方針
+- 関数定義はアロー関数を使用し、Class、function宣言は使用しない。
+
+### linter
+- Biomeによるコードフォーマット
+
+### 型
+- interfaceではなくtypeを使用する
+
+### コンポーネント実装
+- 適切に責務分離を行い、必要であればファイル分割を行う。
+
+### APIコール
+- 必ずuseQueryを用いて行う。
+- src/lib/supabase/apiディレクトリにsupabaseと接続する関数を実装する
+
+### 入力フォーム
+- react-hook-form + zodを用いて実装を行う。
+
+## 環境変数
+- Supabase接続情報
+- OAuth認証情報
+- ベースURL設定
+
+
+
+
