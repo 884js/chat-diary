@@ -2,28 +2,28 @@
 
 import { ChatHeader, ChatInput } from '@/features/chat/components';
 import { ChatMessages } from '@/features/chat/components/ChatMessages';
-import { useChatRoomByToken } from '@/features/chat/hooks/useChatRoomByToken';
+import { useChatRoomDetail } from "@/features/chat/hooks/useChatRoomDetail";
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { SupabaseApi } from '@/lib/supabase/api';
 import { createClient } from '@/lib/supabase/client';
 import { useState } from 'react';
 
 type ChatContainerProps = {
-  token: string;
+  id: string;
 };
 
-export const ChatContainer = ({ token }: ChatContainerProps) => {
+export const ChatContainer = ({ id }: ChatContainerProps) => {
   const { currentUser } = useCurrentUser();
   const [inputHeight, setInputHeight] = useState(192); // 初期高さは仮
 
   const availableHeight = `calc(100dvh - ${inputHeight}px)`;
 
-  const { chatRoom, isLoading, refetch } = useChatRoomByToken({
-    token,
+  const { chatRoom, isLoading, refetch } = useChatRoomDetail({
+    id,
   });
   const isOwner = currentUser ? currentUser.id === chatRoom?.user_id : false;
 
-  const supabase = createClient({ token });
+  const supabase = createClient({ token: id });
   const api = new SupabaseApi(supabase);
 
   const isSendMessageDisabled = isLoading;

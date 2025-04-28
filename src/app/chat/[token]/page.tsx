@@ -9,5 +9,5 @@ type ChatPageProps = {
 export default async function Page({ params }: ChatPageProps) {
   const { token } = params;
 
-  return <ChatContainer token={token} />;
+  return <ChatContainer id={token} />;
 }
