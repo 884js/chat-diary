@@ -93,8 +93,7 @@ export const ChatMessages = ({
 
   return (
     <div
-      className="overflow-y-auto overflow-x-hidden"
-      style={{ maxHeight: containerHeight }}
+      className="overflow-y-auto overflow-x-hidden h-full"
     >
       {/* チャットメッセージ */}
       {messagesWithDividers.map((item, index) => {
