@@ -6,7 +6,11 @@ export const useCurrentUserRoom = () => {
   const { api, supabase } = useSupabase();
   const { currentUser } = useCurrentUser();
 
-  const { data: chatRoom, isLoading, refetch } = useQuery({
+  const {
+    data: chatRoom,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['room', currentUser?.id],
     queryFn: async () => {
       if (!currentUser) return null;

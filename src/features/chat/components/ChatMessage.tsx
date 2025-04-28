@@ -1,6 +1,9 @@
 import Image from 'next/image';
 import { useStorageImage } from '../../../hooks/useStorageImage';
 import { ChatImage } from './ChatImage';
+import { useState, useRef, useEffect } from 'react';
+import { FiMoreVertical, FiTrash } from 'react-icons/fi';
+
 export interface MessageProps {
   content: string;
   sender: 'user' | 'ai';
@@ -11,7 +14,6 @@ export interface MessageProps {
   };
   isFromReceiver: boolean;
   timestamp: string;
-  showAvatar?: boolean;
   imagePath?: string | null;
   isOwner: boolean;
   onScrollToBottom: () => void;
@@ -20,7 +22,6 @@ export interface MessageProps {
 export function ChatMessage({
   content,
   timestamp,
-  showAvatar = true,
   imagePath = null,
   sender,
   owner,
@@ -36,12 +37,78 @@ export function ChatMessage({
   });
 
   const getImageUrl = owner.avatar_url;
-
   const displayName = owner.display_name;
 
+  // メニュー表示状態を管理
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // タッチアニメーション状態
+  const [isTouched, setIsTouched] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // メニュー外のクリックを検知してメニューを閉じる
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // メニュー表示切り替え
+  const toggleMenu = (e: React.MouseEvent) => {
+    // イベント伝播を停止してスクロールに干渉しないようにする
+    e.stopPropagation();
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  // 削除アクション（現段階ではUIのみ）
+  const handleDelete = (e: React.MouseEvent) => {
+    // イベント伝播を停止
+    e.stopPropagation();
+    console.log('Delete message action');
+    setIsMenuOpen(false);
+  };
+
+  // イベント伝播を停止するハンドラ
+  const stopPropagation = (e: React.SyntheticEvent) => {
+    e.stopPropagation();
+  };
+
+  // クリックやキーボードイベントのハンドラ（将来の機能拡張用）
+  const handleInteraction = () => {
+    // 将来的にメッセージタップ時の機能を追加する場合に使用
+    console.log('Message interaction');
+  };
+
+  // タッチ開始時のハンドラ
+  const handleTouchStart = () => {
+    setIsTouched(true);
+  };
+
+  // タッチ終了時のハンドラ
+  const handleTouchEnd = () => {
+    setIsTouched(false);
+  };
+
   return (
-    <div className="flex mb-4">
-      {/* プロフィール画像（全てのメッセージで表示） */}
+    <button
+      type="button"
+      className={`flex mb-4 group relative transition-all duration-150 rounded-sm px-2 py-1 w-full text-left ${
+        isTouched ? 'bg-gray-100 scale-[0.995]' : ''
+      }`}
+      onClick={handleInteraction}
+      onKeyDown={handleInteraction}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
+      aria-label="チャットメッセージ"
+    >
+      {/* プロフィール画像 */}
       <div className="shrink-0 w-10 h-10 rounded-md overflow-hidden mr-3">
         {getImageUrl ? (
           <Image
@@ -59,26 +126,70 @@ export function ChatMessage({
       </div>
 
       {/* メッセージコンテンツ */}
-      <div className="flex-1 min-w-0">
-        {/* 時間のみ表示 */}
-        <div className="mb-1 flex">
-          <span className="text-xs text-gray-500">{timestamp}</span>
-        </div>
+      <div className="flex-1 min-w-0 relative">
+        {/* メッセージ内容とメニューボタンを横に並べる */}
+        <div className="flex items-start">
+          {/* メッセージ内容部分 */}
+          <div className="flex-1 py-1 text-[#222]">
+            {content && (
+              <div className="relative overflow-hidden">
+                <p className="text-sm break-words whitespace-pre-wrap">
+                  {content}
+                </p>
+              </div>
+            )}
 
-        {/* 背景なしでテキスト色を統一 */}
-        <div className="py-1 max-w-[85%] text-[#222]">
-          {content && (
-            <p className="text-sm break-words whitespace-pre-wrap">{content}</p>
-          )}
+            {/* 画像があれば表示する */}
+            {storageImageUrl && (
+              <div className="mt-2">
+                <ChatImage imageUrl={storageImageUrl} />
+              </div>
+            )}
 
-          {/* 画像があれば表示する */}
-          {storageImageUrl && (
-            <div className="mt-2">
-              <ChatImage imageUrl={storageImageUrl} />
+            {/* タイムスタンプを右下に配置 */}
+            <div className="flex justify-end mt-1">
+              <span className="text-xs text-gray-500">{timestamp}</span>
             </div>
-          )}
+          </div>
+
+          {/* 三点リーダーメニューボタン - メッセージの横に配置 */}
+          <button
+            type="button"
+            onClick={toggleMenu}
+            className="p-1.5 ml-2 rounded-full hover:bg-gray-100 text-gray-600 z-10 shrink-0"
+            aria-label="メッセージメニューを開く"
+          >
+            <FiMoreVertical size={16} />
+          </button>
         </div>
+
+        {/* ロングプレス用ヒント表示（最初のロードでのみ表示し、その後は非表示にする） */}
+        <div className="hidden absolute bottom-0 right-0 mb-6 mr-2 bg-black/70 text-white text-xs py-1 px-2 rounded pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+          長押しでメニューを表示
+        </div>
+
+        {/* コンテキストメニュー */}
+        {isMenuOpen && (
+          <div
+            ref={menuRef}
+            className="absolute right-0 top-0 z-20 bg-white shadow-lg rounded-md py-1 min-w-[120px] border border-gray-200"
+            onClick={stopPropagation}
+            onKeyDown={stopPropagation}
+            role="menu"
+            tabIndex={-1}
+          >
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
+              role="menuitem"
+            >
+              <FiTrash className="mr-2" size={14} />
+              <span>削除</span>
+            </button>
+          </div>
+        )}
       </div>
-    </div>
+    </button>
   );
 }

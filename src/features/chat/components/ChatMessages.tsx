@@ -88,7 +88,7 @@ export const ChatMessages = ({
   }
 
   return (
-    <div className="overflow-y-auto overflow-x-hidden h-full">
+    <div className="overflow-y-auto overflow-x-hidden h-full touch-pan-y">
       {/* チャットメッセージ */}
       {messagesWithDividers.map((item, index) => {
         const { message: msg, showDateDivider, date: messageDate } = item;
@@ -121,10 +121,6 @@ export const ChatMessages = ({
               isFromReceiver={isFromReceiver}
               isOwner={isOwner}
               timestamp={formatDate(msg.created_at || '', 'HH:mm')}
-              showAvatar={
-                index === 0 ||
-                messagesWithDividers[index - 1]?.message.sender !== msg.sender
-              }
               imagePath={msg.image_path}
               onScrollToBottom={handleScrollToBottom}
             />

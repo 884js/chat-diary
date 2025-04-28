@@ -10,11 +10,7 @@ interface Props {
   fullWidth?: boolean;
 }
 
-export const ChatImage = ({
-  imageUrl,
-  alt = '',
-  fullWidth = false,
-}: Props) => {
+export const ChatImage = ({ imageUrl, alt = '', fullWidth = false }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
