@@ -84,14 +84,14 @@ export const ChatImage = ({ imageUrl, alt = '', fullWidth = false }: Props) => {
       {/* サムネイル表示 */}
       <div
         className={`relative my-4 rounded-lg overflow-hidden shadow-md ${
-          fullWidth ? "h-[300px]" : "max-w-[300px]"
+          fullWidth ? 'h-[300px]' : 'max-w-[300px]'
         } relative`}
       >
         <Image
           src={imageUrl}
           alt={alt}
           objectFit="contain"
-          className={"rounded-lg min-h-[60px]"}
+          className={'rounded-lg min-h-[60px]'}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           priority={true} // 初期表示の画像はプリロード
           quality={100} // 画質と容量のバランス

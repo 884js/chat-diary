@@ -153,4 +153,20 @@ export class ChatRoomMessageApi {
       success: true,
     };
   }
+
+  async editMessage({ messageId, content }: { messageId: string; content: string }) {
+    const { error } = await this.supabase
+      .from('room_messages')
+      .update({ content })
+      .eq('id', messageId);
+
+    if (error) {
+      console.error('Message edit error:', error);
+      throw error;
+    }
+
+    return {
+      success: true,
+    };
+  }
 }

@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
 import { useKeyboard } from '@/contexts/KeyboardContext';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type React from 'react';
 import { FiAlertCircle, FiCamera, FiImage, FiSend, FiX } from 'react-icons/fi';
 
@@ -32,6 +32,7 @@ interface ChatInputProps {
   isDisabled: boolean;
   onImageSelect?: (file: File) => Promise<string | undefined>;
   onHeightChange: (height: number) => void;
+  editMessage?: string;
 }
 
 export function ChatInput({
@@ -39,6 +40,7 @@ export function ChatInput({
   isDisabled,
   onImageSelect,
   onHeightChange,
+  editMessage,
 }: ChatInputProps) {
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -49,6 +51,17 @@ export function ChatInput({
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { isKeyboardVisible } = useKeyboard();
+
+  useEffect(() => {
+    if (editMessage) {
+      setMessage(editMessage);
+    }
+  }, [editMessage]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useLayoutEffect(() => {
+    adjustTextareaHeight();
+  }, [message]);
 
   const isButtonDisabled =
     (!message.trim() && !selectedImage) || isDisabled || isUploading;
@@ -176,11 +189,15 @@ export function ChatInput({
     }
   };
 
-  // Textareaの高さを自動調整する関数
-  const adjustTextareaHeight = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const textarea = e.target;
-    setMessage(textarea.value);
+  const updateMessage = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(e.target.value);
+  };
 
+  // Textareaの高さを自動調整する関数
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current;
+
+    if (!textarea) return;
     // 高さをリセットして、スクロールの高さに基づいて再設定
 
     textarea.style.height = 'auto';
@@ -238,7 +255,7 @@ export function ChatInput({
   return (
     <div
       className={`bg-white border-t border-slate-200 p-3 w-full z-[60] transition-all duration-300 ${
-        isKeyboardVisible ? 'bottom-0 overflow-y-auto' : 'bottom-[64px]'
+        isKeyboardVisible ? "bottom-0 overflow-y-auto" : "bottom-[64px]"
       }`}
     >
       {/* エラーメッセージ */}
@@ -282,7 +299,7 @@ export function ChatInput({
               onClick={handleImageClick}
               disabled={isUploading}
               className={`rounded-full w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 transition-colors ${
-                isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                isUploading ? "opacity-50 cursor-not-allowed" : ""
               }`}
               aria-label="画像を選択"
               title={`画像を選択 (最大 ${formatFileSize(MAX_IMAGE_SIZE)})`}
@@ -296,7 +313,7 @@ export function ChatInput({
               onClick={handleCameraClick}
               disabled={isUploading}
               className={`md:hidden rounded-full w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 transition-colors ${
-                isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                isUploading ? "opacity-50 cursor-not-allowed" : ""
               }`}
               aria-label="カメラを起動"
               title="カメラを起動"
@@ -311,7 +328,7 @@ export function ChatInput({
           type="file"
           ref={fileInputRef}
           onChange={handleImageChange}
-          accept={ALLOWED_IMAGE_TYPES.join(',')}
+          accept={ALLOWED_IMAGE_TYPES.join(",")}
           className="hidden"
           disabled={isUploading}
         />
@@ -321,7 +338,7 @@ export function ChatInput({
           type="file"
           ref={cameraInputRef}
           onChange={handleImageChange}
-          accept={ALLOWED_IMAGE_TYPES.join(',')}
+          accept={ALLOWED_IMAGE_TYPES.join(",")}
           capture="environment"
           className="hidden"
           disabled={isUploading}
@@ -330,7 +347,7 @@ export function ChatInput({
         <Textarea
           ref={textareaRef}
           value={message}
-          onChange={adjustTextareaHeight}
+          onChange={updateMessage}
           placeholder={placeholder}
           className="flex-1 rounded-lg py-2 px-4 border border-slate-300 focus-visible:ring-2 focus-visible:ring-indigo-400 min-h-[40px] max-h-[150px] resize-none"
           onKeyDown={handleKeyDown}
@@ -342,8 +359,8 @@ export function ChatInput({
           disabled={isButtonDisabled}
           className={`rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md transition-all duration-200 ${
             isButtonDisabled
-              ? 'bg-slate-300 cursor-not-allowed'
-              : 'bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 hover:shadow-lg transform hover:scale-105'
+              ? "bg-slate-300 cursor-not-allowed"
+              : "bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 hover:shadow-lg transform hover:scale-105"
           }`}
           aria-label="メッセージを送信"
         >

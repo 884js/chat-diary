@@ -2,7 +2,12 @@ import Image from 'next/image';
 import { useStorageImage } from '../../../hooks/useStorageImage';
 import { ChatImage } from './ChatImage';
 import { useState, useRef, useEffect } from 'react';
-import { FiMoreVertical, FiTrash } from 'react-icons/fi';
+import {
+  FiMoreVertical,
+  FiTrash,
+  FiEdit,
+  FiCornerUpRight,
+} from 'react-icons/fi';
 import { useSupabase } from '@/hooks/useSupabase';
 import { useCurrentUserRoom } from '@/hooks/useCurrentUserRoom';
 
@@ -20,6 +25,7 @@ export interface MessageProps {
   imagePath?: string | null;
   isOwner: boolean;
   onScrollToBottom: () => void;
+  onEditMessage: (messageId: string, message: string) => void;
 }
 
 export function ChatMessage({
@@ -28,6 +34,7 @@ export function ChatMessage({
   timestamp,
   imagePath = null,
   owner,
+  onEditMessage,
 }: MessageProps) {
   const { refetchRoom } = useCurrentUserRoom();
 
@@ -42,6 +49,7 @@ export function ChatMessage({
 
   // メニュー表示状態を管理
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const menuRef = useRef<HTMLDivElement>(null);
 
   // メニュー外のクリックを検知してメニューを閉じる
@@ -65,18 +73,21 @@ export function ChatMessage({
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // 削除アクション（現段階ではUIのみ）
   const handleDelete = async () => {
     await api.chatRoomMessage.deleteMessage({ messageId: id });
     setIsMenuOpen(false);
     refetchRoom();
   };
 
-  // イベント伝播を停止するハンドラ
-  const stopPropagation = (e: React.SyntheticEvent) => {
-    e.stopPropagation();
+  const handleEdit = () => {
+    onEditMessage(id, content);
+    setIsMenuOpen(false);
   };
 
+  const handleReply = () => {
+    console.log('メッセージに返信');
+    setIsMenuOpen(false);
+  };
 
   return (
     <div
@@ -138,21 +149,32 @@ export function ChatMessage({
           </button>
         </div>
 
-        {/* ロングプレス用ヒント表示（最初のロードでのみ表示し、その後は非表示にする） */}
-        <div className="hidden absolute bottom-0 right-0 mb-6 mr-2 bg-black/70 text-white text-xs py-1 px-2 rounded pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-          長押しでメニューを表示
-        </div>
-
         {/* コンテキストメニュー */}
         {isMenuOpen && (
           <div
             ref={menuRef}
             className="absolute right-0 top-0 z-20 bg-white shadow-lg rounded-md py-1 min-w-[120px] border border-gray-200"
-            onClick={stopPropagation}
-            onKeyDown={stopPropagation}
             role="menu"
             tabIndex={-1}
           >
+            <button
+              type="button"
+              onClick={handleEdit}
+              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+              role="menuitem"
+            >
+              <FiEdit className="mr-2" size={14} />
+              <span>編集</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleReply}
+              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+              role="menuitem"
+            >
+              <FiCornerUpRight className="mr-2" size={14} />
+              <span>返信</span>
+            </button>
             <button
               type="button"
               onClick={handleDelete}

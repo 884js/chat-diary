@@ -15,8 +15,7 @@ export type ChatRoom = {
 };
 
 export class ChatRoomApi {
-  constructor(private supabase: SupabaseClient<Database>) {
-  }
+  constructor(private supabase: SupabaseClient<Database>) {}
 
   async createChatRoom({ userId }: { userId: string }) {
     try {
@@ -73,7 +72,6 @@ export class ChatRoomApi {
       chat_room_messages: messages ?? [],
     };
   }
-
 
   // ユーザーのデフォルトチャットルームを取得
   async getDefaultChatRoom(userId: string) {
