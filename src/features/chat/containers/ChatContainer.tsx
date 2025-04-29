@@ -28,7 +28,7 @@ export const ChatContainer = () => {
     if (!chatRoom?.id || !currentUser) return;
 
     // 画像をアップロード
-    const uploadResult = await api.chatRoom.uploadChatImage({
+    const uploadResult = await api.chatRoomMessage.uploadChatImage({
       file,
       userId: currentUser?.id,
     });
@@ -48,7 +48,7 @@ export const ChatContainer = () => {
     const senderType = isOwner ? 'user' : 'ai';
 
     try {
-      await api.chatRoom.sendMessage({
+      await api.chatRoomMessage.sendMessage({
         content: trimmedMessage,
         sender: senderType,
         imagePath: imagePath,

@@ -3,6 +3,7 @@ import { ChatRoomApi } from './ChatRoom';
 import { CalendarApi } from './calendar';
 import { ChatSettingApi } from './chatSetting';
 import { UserApi } from './user';
+import { ChatRoomMessageApi } from './ChatRoomMessage';
 export class SupabaseApi {
   constructor(private supabase: SupabaseClient) {}
 
@@ -10,4 +11,5 @@ export class SupabaseApi {
   public chatSetting = new ChatSettingApi(this.supabase);
   public chatRoom = new ChatRoomApi(this.supabase);
   public calendar = new CalendarApi(this.supabase);
+  public chatRoomMessage = new ChatRoomMessageApi(this.supabase);
 }
