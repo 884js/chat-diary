@@ -23,17 +23,11 @@ export function ChatMessage({
   content,
   timestamp,
   imagePath = null,
-  sender,
   owner,
-  isOwner,
-  onScrollToBottom,
 }: MessageProps) {
   const { imageUrl: storageImageUrl } = useStorageImage({
     imagePath,
     storageName: 'chats',
-    onSuccess: () => {
-      onScrollToBottom();
-    },
   });
 
   const getImageUrl = owner.avatar_url;
@@ -41,8 +35,6 @@ export function ChatMessage({
 
   // メニュー表示状態を管理
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // タッチアニメーション状態
-  const [isTouched, setIsTouched] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // メニュー外のクリックを検知してメニューを閉じる
@@ -79,33 +71,10 @@ export function ChatMessage({
     e.stopPropagation();
   };
 
-  // クリックやキーボードイベントのハンドラ（将来の機能拡張用）
-  const handleInteraction = () => {
-    // 将来的にメッセージタップ時の機能を追加する場合に使用
-    console.log('Message interaction');
-  };
-
-  // タッチ開始時のハンドラ
-  const handleTouchStart = () => {
-    setIsTouched(true);
-  };
-
-  // タッチ終了時のハンドラ
-  const handleTouchEnd = () => {
-    setIsTouched(false);
-  };
 
   return (
-    <button
-      type="button"
-      className={`flex mb-4 group relative transition-all duration-150 rounded-sm px-2 py-1 w-full text-left ${
-        isTouched ? 'bg-gray-100 scale-[0.995]' : ''
-      }`}
-      onClick={handleInteraction}
-      onKeyDown={handleInteraction}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchEnd}
+    <div
+      className={'flex mb-4 group relative transition-all duration-150 rounded-sm px-2 py-1 w-full text-left'}
       aria-label="チャットメッセージ"
     >
       {/* プロフィール画像 */}
@@ -190,6 +159,6 @@ export function ChatMessage({
           </div>
         )}
       </div>
-    </button>
+    </div>
   );
 }
