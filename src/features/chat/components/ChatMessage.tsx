@@ -3,8 +3,11 @@ import { useStorageImage } from '../../../hooks/useStorageImage';
 import { ChatImage } from './ChatImage';
 import { useState, useRef, useEffect } from 'react';
 import { FiMoreVertical, FiTrash } from 'react-icons/fi';
+import { useSupabase } from '@/hooks/useSupabase';
+import { useCurrentUserRoom } from '@/hooks/useCurrentUserRoom';
 
 export interface MessageProps {
+  id: string;
   content: string;
   sender: 'user' | 'ai';
   owner: {
@@ -20,11 +23,15 @@ export interface MessageProps {
 }
 
 export function ChatMessage({
+  id,
   content,
   timestamp,
   imagePath = null,
   owner,
 }: MessageProps) {
+  const { refetchRoom } = useCurrentUserRoom();
+
+  const { api } = useSupabase();
   const { imageUrl: storageImageUrl } = useStorageImage({
     imagePath,
     storageName: 'chats',
@@ -59,11 +66,10 @@ export function ChatMessage({
   };
 
   // 削除アクション（現段階ではUIのみ）
-  const handleDelete = (e: React.MouseEvent) => {
-    // イベント伝播を停止
-    e.stopPropagation();
-    console.log('Delete message action');
+  const handleDelete = async () => {
+    await api.chatRoomMessage.deleteMessage({ messageId: id });
     setIsMenuOpen(false);
+    refetchRoom();
   };
 
   // イベント伝播を停止するハンドラ

@@ -41,7 +41,6 @@ export const ChatMessages = ({
     }> = [];
 
     let previousDate: Date | null = null;
-
     // 各メッセージを処理
     messages.forEach((msg, index) => {
       const messageDate = msg.created_at ? parseISO(msg.created_at) : null;
@@ -116,6 +115,7 @@ export const ChatMessages = ({
 
             {/* メッセージ */}
             <ChatMessage
+              id={msg.id}
               content={msg.content}
               owner={chatRoom.owner}
               sender={msg.sender}

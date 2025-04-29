@@ -208,3 +208,7 @@ create policy "誰でもメッセージを更新できる"
   using (true)
   with check (true);
 
+CREATE POLICY "自分のメッセージだけ削除できる"
+  ON public.room_messages
+  FOR DELETE
+  USING (auth.uid() = owner_id);

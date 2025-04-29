@@ -137,4 +137,20 @@ export class ChatRoomMessageApi {
       throw error;
     }
   }
+
+  async deleteMessage({ messageId }: { messageId: string }) {
+    const { error } = await this.supabase
+      .from('room_messages')
+      .delete()
+      .eq('id', messageId);
+
+    if (error) {
+      console.error('Message delete error:', error);
+      throw error;
+    }
+
+    return {
+      success: true,
+    };
+  }
 }
