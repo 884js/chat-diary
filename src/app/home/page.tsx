@@ -1,9 +1,10 @@
 import { ChatContainer } from '@/features/chat/containers/ChatContainer';
-import { EditMessageProvider } from '@/features/chat/contexts/EditMessageContext';
+import { MessageActionProvider } from '@/features/chat/contexts/MessageActionContext';
+
 export default function Page() {
   return (
-    <EditMessageProvider>
+    <MessageActionProvider>
       <ChatContainer />
-    </EditMessageProvider>
+    </MessageActionProvider>
   );
 }

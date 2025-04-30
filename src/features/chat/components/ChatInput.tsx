@@ -3,8 +3,15 @@ import { Textarea } from '@/components/ui/Textarea';
 import { useKeyboard } from '@/contexts/KeyboardContext';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type React from 'react';
-import { FiAlertCircle, FiCamera, FiImage, FiSend, FiX } from 'react-icons/fi';
-import { useEditMessage } from '../contexts/EditMessageContext';
+import {
+  FiAlertCircle,
+  FiCamera,
+  FiImage,
+  FiCornerUpRight,
+  FiSend,
+  FiX,
+} from 'react-icons/fi';
+import { useMessageAction } from '../contexts/MessageActionContext';
 
 // 画像アップロード制限
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -41,7 +48,7 @@ export function ChatInput({
   onImageSelect,
   onHeightChange,
 }: ChatInputProps) {
-  const { editMessage } = useEditMessage();
+  const { selectedMessage, mode, replyMessageRef } = useMessageAction();
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
@@ -53,10 +60,17 @@ export function ChatInput({
   const { isKeyboardVisible } = useKeyboard();
 
   useEffect(() => {
-    if (editMessage) {
-      setMessage(editMessage);
+    if (selectedMessage) {
+      switch (mode) {
+        case 'edit':
+          setMessage(selectedMessage);
+          break;
+        case 'reply':
+          setMessage('');
+          break;
+      }
     }
-  }, [editMessage]);
+  }, [selectedMessage, mode]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useLayoutEffect(() => {
@@ -176,6 +190,7 @@ export function ChatInput({
         hasImage: false,
         hasError: false,
         isKeyboardVisible: false,
+        mode,
       });
     }
   };
@@ -224,10 +239,12 @@ export function ChatInput({
     hasImage: boolean;
     hasError: boolean;
     isKeyboardVisible: boolean;
+    mode: 'edit' | 'reply' | null;
   }) => {
     if (!textareaRef.current) return;
 
     const textareaHeight = textareaRef.current.scrollHeight;
+    const replyMessageHeight = replyMessageRef.current?.scrollHeight || 0;
     const additionalHeight = textareaHeight > 150 ? 150 : textareaHeight;
     const bottomPadding = isKeyboardVisible ? 0 : 64;
 
@@ -240,6 +257,11 @@ export function ChatInput({
     if (hasError) {
       height += 40; // エラー文ぶん（おおよその高さ）
     }
+
+    if (mode === 'reply') {
+      height += replyMessageHeight + 8; // 返信メッセージぶん
+    }
+
     onHeightChange(height);
   };
 
@@ -249,8 +271,9 @@ export function ChatInput({
       hasImage: !!selectedImage,
       hasError: !!uploadError,
       isKeyboardVisible,
+      mode,
     });
-  }, [message, imagePreviewUrl, uploadError, isKeyboardVisible]);
+  }, [message, imagePreviewUrl, uploadError, isKeyboardVisible, mode, selectedMessage]);
 
   return (
     <div
@@ -285,6 +308,15 @@ export function ChatInput({
             >
               <FiX size={16} />
             </button>
+          </div>
+        </div>
+      )}
+
+      {mode === 'reply' && (
+        <div className="max-w-5xl mx-auto mb-2" ref={replyMessageRef}>
+          <div className="p-2 bg-blue-50 text-blue-600 rounded-md text-xs flex items-start">
+            <FiCornerUpRight className="mr-1 mt-0.5 flex-shrink-0" size={14} />
+            <span>{selectedMessage}</span>
           </div>
         </div>
       )}

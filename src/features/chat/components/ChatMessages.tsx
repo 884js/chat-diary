@@ -119,6 +119,7 @@ export const ChatMessages = ({
               content={msg.content}
               owner={chatRoom.owner}
               sender={msg.sender}
+              replyTo={msg.reply_to}
               isFromReceiver={isFromReceiver}
               isOwner={isOwner}
               timestamp={formatDate(msg.created_at || '', 'HH:mm')}

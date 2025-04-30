@@ -11,6 +11,7 @@ export type ChatRoomMessage = {
   reply_to_message_id: string | null;
   created_at: string;
   updated_at: string;
+  reply_to: ChatRoomMessage | null;
 };
 
 export class ChatRoomMessageApi {
@@ -165,6 +166,28 @@ export class ChatRoomMessageApi {
 
     if (error) {
       console.error('Message edit error:', error);
+      throw error;
+    }
+
+    return {
+      success: true,
+    };
+  }
+
+  async replyMessage({
+    parentMessageId,
+    content,
+    senderId,
+  }: { parentMessageId: string; content: string; senderId: string }) {
+    const { error } = await this.supabase.from('room_messages').insert({
+      content,
+      sender: 'user',
+      owner_id: senderId,
+      reply_to_message_id: parentMessageId,
+    });
+
+    if (error) {
+      console.error('Message reply error:', error);
       throw error;
     }
 

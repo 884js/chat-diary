@@ -7,7 +7,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useCurrentUserRoom } from '@/hooks/useCurrentUserRoom';
 import { useSupabase } from '@/hooks/useSupabase';
 import { useEffect, useMemo, useState } from 'react';
-import { useEditMessage } from '../contexts/EditMessageContext';
+import { useMessageAction } from '../contexts/MessageActionContext';
 
 export const ChatContainer = () => {
   const { api } = useSupabase();
@@ -19,13 +19,8 @@ export const ChatContainer = () => {
     () => `calc(${viewportHeight}px - ${inputHeight}px)`,
     [viewportHeight, inputHeight],
   );
-  const {
-    isEditMode,
-    handleEditMessage,
-    handleCancelEdit,
-    handleSaveEdit,
-    editMessage,
-  } = useEditMessage();
+  const { mode, handleSaveEdit, handleSendReplyMessage } =
+    useMessageAction();
 
   const isOwner = currentUser ? currentUser.id === chatRoom?.user_id : false;
 
@@ -55,9 +50,14 @@ export const ChatContainer = () => {
 
     const senderType = isOwner ? 'user' : 'ai';
 
-    if (isEditMode) {
+    if (mode === 'edit') {
       await handleSaveEdit({ message: trimmedMessage });
-      handleCancelEdit();
+      refetchRoom();
+      return;
+    }
+
+    if (mode === 'reply') {
+      await handleSendReplyMessage({ message: trimmedMessage });
       refetchRoom();
       return;
     }

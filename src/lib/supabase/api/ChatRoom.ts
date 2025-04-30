@@ -56,7 +56,9 @@ export class ChatRoomApi {
     // メッセージを古い順に取得
     const { data: messages, error: messagesError } = await this.supabase
       .from('room_messages')
-      .select('id, owner_id, content, sender, created_at, image_path')
+      .select(
+        'id, owner_id, content, sender, created_at, image_path, reply_to:reply_to_message_id (id, content, sender)',
+      )
       .eq('owner_id', chatRoom.user_id)
       .order('created_at', { ascending: true })
       .overrideTypes<Array<ChatRoomMessage>, { merge: false }>();

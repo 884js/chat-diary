@@ -1,5 +1,4 @@
 import { useCurrentUserRoom } from '@/hooks/useCurrentUserRoom';
-import { useSupabase } from '@/hooks/useSupabase';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -9,13 +8,14 @@ import {
   FiTrash,
 } from 'react-icons/fi';
 import { useStorageImage } from '../../../hooks/useStorageImage';
-import { useEditMessage } from '../contexts/EditMessageContext';
+import { useMessageAction } from '../contexts/MessageActionContext';
 import { ChatImage } from './ChatImage';
-
+import type { ChatRoomMessage } from '@/lib/supabase/api/ChatRoomMessage';
 export interface MessageProps {
   id: string;
   content: string;
   sender: 'user' | 'ai';
+  replyTo: ChatRoomMessage | null;
   owner: {
     id: string;
     display_name: string;
@@ -34,11 +34,15 @@ export function ChatMessage({
   timestamp,
   imagePath = null,
   owner,
+  replyTo,
 }: MessageProps) {
-  const { refetchRoom } = useCurrentUserRoom();
-  const { handleEditMessage, editMessageId } = useEditMessage();
+  const {
+    handleEditMessage,
+    messageId,
+    handleDeleteMessage,
+    handleReplyMessage,
+  } = useMessageAction();
 
-  const { api } = useSupabase();
   const { imageUrl: storageImageUrl } = useStorageImage({
     imagePath,
     storageName: 'chats',
@@ -74,26 +78,26 @@ export function ChatMessage({
   };
 
   const handleDelete = async () => {
-    await api.chatRoomMessage.deleteMessage({ messageId: id });
+    await handleDeleteMessage({ messageId: id });
     setIsMenuOpen(false);
-    refetchRoom();
   };
 
   const handleEdit = () => {
-    handleEditMessage(id, content);
+    handleEditMessage({ messageId: id, message: content });
     setIsMenuOpen(false);
   };
 
   const handleReply = () => {
-    console.log('メッセージに返信');
+    handleReplyMessage({ parentMessageId: id, message: content });
     setIsMenuOpen(false);
   };
 
   return (
     <div
       className={`flex mb-4 group relative transition-all duration-150 rounded-sm px-2 py-1 w-full text-left ${
-        editMessageId === id ? 'bg-gray-100' : ''
+        messageId === id ? "bg-gray-100" : ""
       }`}
+      id={id}
       aria-label="メッセージ"
     >
       {/* プロフィール画像 */}
@@ -119,6 +123,14 @@ export function ChatMessage({
         <div className="flex items-start">
           {/* メッセージ内容部分 */}
           <div className="flex-1 py-1 text-[#222]">
+            {replyTo && (
+              <a href={`#${replyTo.id}`}>
+                <div className="text-xs text-gray-500 mb-2">
+                  {replyTo.content}
+                </div>
+                <hr className="my-2 border-gray-200" />
+              </a>
+            )}
             {content && (
               <div className="relative overflow-hidden">
                 <p className="text-sm break-words whitespace-pre-wrap">
