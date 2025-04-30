@@ -72,7 +72,7 @@ export const DayCard = ({
             className="text-sm px-3 text-slate-600 hover:bg-indigo-50/50 hover:text-indigo-600 transition-colors"
             onClick={handleSummarize}
             disabled={isGeneratingSummary}
-        >
+          >
             {isGeneratingSummary ? '整理中...' : '整理する'}
           </Button>
         )}
@@ -143,7 +143,7 @@ export const DayCard = ({
               onClick={() => onToggleExpandDay(dateKey)}
               className="text-xs text-indigo-500/70 hover:text-indigo-500 hover:underline transition-colors"
             >
-              {isExpandedDay ? "閉じる" : `さらに${messages.length - 3}件表示`}
+              {isExpandedDay ? '閉じる' : `さらに${messages.length - 3}件表示`}
             </button>
           </div>
         )}

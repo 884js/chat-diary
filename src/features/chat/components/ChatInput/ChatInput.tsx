@@ -1,24 +1,16 @@
-import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
 import { useKeyboard } from '@/contexts/KeyboardContext';
-import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type React from 'react';
-import {
-  FiAlertCircle,
-  FiCamera,
-  FiCornerUpRight,
-  FiImage,
-  FiSend,
-  FiX,
-} from 'react-icons/fi';
-import { useMessageAction } from '../contexts/MessageActionContext';
-import {
-  ALLOWED_IMAGE_TYPES,
-  MAX_IMAGE_SIZE,
-  formatFileSize,
-  useFileInput,
-} from '../hooks/useFileInput';
+import { FiSend } from 'react-icons/fi';
+import { useMessageAction } from '../../contexts/MessageActionContext';
+import { ALLOWED_IMAGE_TYPES, useFileInput } from '../../hooks/useFileInput';
+import { AttachMenu } from './AttachMenu';
+import { ErrorMessage } from './ErrorMessage';
+import { ImagePreview } from './ImagePreview';
+import { ReplyPreview } from './ReplyPreview';
+
 interface ChatInputProps {
   onSend: ({
     imagePath,
@@ -38,6 +30,9 @@ export function ChatInput({
 }: ChatInputProps) {
   const { selectedMessage, mode, replyMessageRef } = useMessageAction();
   const [message, setMessage] = useState('');
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const attachMenuRef = useRef<HTMLDivElement>(null);
+
   const {
     handleUpload,
     handleCancelImage,
@@ -75,6 +70,29 @@ export function ChatInput({
 
   const isButtonDisabled =
     (!message.trim() && !selectedImage) || isDisabled || isUploading;
+
+  // 添付メニューの外側をクリックした時に閉じる
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        attachMenuRef.current &&
+        !attachMenuRef.current.contains(event.target as Node)
+      ) {
+        setShowAttachMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // 添付ボタンの状態を切り替える
+  const toggleAttachMenu = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowAttachMenu(!showAttachMenu);
+  };
 
   // メッセージ送信処理
   const handleSend = async () => {
@@ -123,7 +141,6 @@ export function ChatInput({
 
     if (!textarea) return;
     // 高さをリセットして、スクロールの高さに基づいて再設定
-
     textarea.style.height = 'auto';
     textarea.style.height = `${Math.min(textarea.scrollHeight, 150)}px`;
   };
@@ -198,79 +215,24 @@ export function ChatInput({
         isKeyboardVisible ? 'bottom-0 overflow-y-auto' : 'bottom-[64px]'
       }`}
     >
-      {/* エラーメッセージ */}
-      {uploadError && (
-        <div className="max-w-4xl mx-auto mb-2">
-          <div className="p-2 bg-red-50 text-red-600 rounded-md text-xs flex items-start">
-            <FiAlertCircle className="mr-1 mt-0.5 flex-shrink-0" size={14} />
-            <span>{uploadError}</span>
-          </div>
-        </div>
-      )}
-
-      {/* 画像プレビュー */}
-      {imagePreviewUrl && (
-        <div className="max-w-4xl mx-auto mb-2 relative">
-          <div className="relative h-32 overflow-hidden rounded-md border border-slate-300 w-fit">
-            <img
-              src={imagePreviewUrl}
-              alt="プレビュー"
-              className="h-full w-auto object-contain"
-            />
-            <button
-              type="button"
-              onClick={handleCancelImage}
-              className="absolute right-2 top-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70"
-              aria-label="画像選択をキャンセル"
-            >
-              <FiX size={16} />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {mode === 'reply' && (
-        <div className="max-w-5xl mx-auto mb-2" ref={replyMessageRef}>
-          <div className="p-2 bg-blue-50 text-blue-600 rounded-md text-xs flex items-start">
-            <FiCornerUpRight className="mr-1 mt-0.5 flex-shrink-0" size={14} />
-            <MarkdownRenderer content={selectedMessage || ''} />
-          </div>
-        </div>
-      )}
+      <ErrorMessage message={uploadError} />
+      <ImagePreview imageUrl={imagePreviewUrl} onCancel={handleCancelImage} />
+      <ReplyPreview
+        content={mode === 'reply' ? selectedMessage : null}
+        replyRef={replyMessageRef}
+      />
 
       {/* 入力エリア */}
-      <div className="flex gap-2 max-w-5xl mx-auto items-center">
-        {/* 画像選択ボタン */}
-        {!isDisabled && (
-          <>
-            <button
-              type="button"
-              onClick={handleImageClick}
-              disabled={isUploading}
-              className={`rounded-full w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 transition-colors ${
-                isUploading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-              aria-label="画像を選択"
-              title={`画像を選択 (最大 ${formatFileSize(MAX_IMAGE_SIZE)})`}
-            >
-              <FiImage size={20} className="text-slate-600" />
-            </button>
-
-            {/* カメラボタン */}
-            <button
-              type="button"
-              onClick={handleCameraClick}
-              disabled={isUploading}
-              className={`md:hidden rounded-full w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 transition-colors ${
-                isUploading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-              aria-label="カメラを起動"
-              title="カメラを起動"
-            >
-              <FiCamera size={20} className="text-slate-600" />
-            </button>
-          </>
-        )}
+      <div className="flex gap-2 max-w-5xl mx-auto items-center relative">
+        <AttachMenu
+          isOpen={showAttachMenu}
+          isDisabled={isDisabled}
+          isUploading={isUploading}
+          toggleMenu={toggleAttachMenu}
+          onSelectImage={handleImageClick}
+          onSelectCamera={handleCameraClick}
+          menuRef={attachMenuRef}
+        />
 
         {/* 通常のファイル選択入力 */}
         <input

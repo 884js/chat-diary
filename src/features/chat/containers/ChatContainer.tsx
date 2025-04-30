@@ -1,7 +1,8 @@
 'use client';
 
 import { Loader } from '@/components/ui/Loader';
-import { ChatHeader, ChatInput } from '@/features/chat/components';
+import { ChatHeader } from '@/features/chat/components/ChatHeader';
+import { ChatInput } from '@/features/chat/components/ChatInput';
 import { ChatMessages } from '@/features/chat/components/ChatMessages';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useCurrentUserRoom } from '@/hooks/useCurrentUserRoom';
