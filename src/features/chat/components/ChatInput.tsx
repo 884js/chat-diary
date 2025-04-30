@@ -149,9 +149,7 @@ export function ChatInput({
   };
 
   // メッセージ送信処理
-  const handleSend = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-
+  const handleSend = async () => {
     if (isButtonDisabled) return;
 
     let imagePath: string | undefined;
@@ -396,7 +394,7 @@ export function ChatInput({
           rows={1}
         />
         <Button
-          onClick={handleSend}
+          onClick={() => handleSend()}
           disabled={isButtonDisabled}
           className={`rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md transition-all duration-200 ${
             isButtonDisabled
