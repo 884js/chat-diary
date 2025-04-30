@@ -88,7 +88,7 @@ export const ChatContainer = () => {
 
       {/* メッセージ一覧 */}
       <div
-        className="flex-1 p-2 md:min-w-5xl md:mx-auto"
+        className="flex-1 p-2 md:max-w-5xl md:mx-auto"
         style={{ height: availableHeight }}
       >
         <ChatMessages
