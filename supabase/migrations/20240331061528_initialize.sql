@@ -61,44 +61,12 @@ CREATE TABLE IF NOT EXISTS public.calendar_days (
   UNIQUE (owner_id, date) -- 同じユーザーの同じ日に複数レコード作らせない
 );
 
--- リアルタイム機能を有効化
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime'
-  ) THEN
-    CREATE PUBLICATION supabase_realtime;
-  END IF;
-END
-$$;
--- room_settingsテーブル
-ALTER PUBLICATION supabase_realtime ADD TABLE public.room_settings;
--- roomsテーブル
-ALTER PUBLICATION supabase_realtime ADD TABLE public.rooms;
--- room_messagesテーブル
-ALTER PUBLICATION supabase_realtime ADD TABLE public.room_messages;
-
--- RLSの設定も更新
-ALTER TABLE public.rooms ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "誰でもチャットルームを読み取れる"
-  ON public.rooms FOR SELECT
-  USING (true);
-
-CREATE POLICY "誰でもチャットルームを作成できる"
-  ON public.rooms FOR INSERT
-  WITH CHECK (true);
-
-CREATE POLICY "ログインユーザーのみチャットルームを更新できる"
-  ON public.rooms FOR UPDATE
-  USING (auth.uid() IS NOT NULL);
-
 -- インデックスの作成
 CREATE INDEX IF NOT EXISTS idx_room_messages_owner_id_created_at
 ON public.room_messages(owner_id, created_at);
 
 -- auth.usersが作成されたとき、自動的にpublic.usersも作成するトリガー
-CREATE OR REPLACE FUNCTION public.handle_new_user() 
+CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.users (id, email, display_name, avatar_url, recipient_id, created_at)
@@ -168,6 +136,20 @@ CREATE TRIGGER rooms_updated_at
   FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();
 
 -- RLSの設定
+ALTER TABLE public.rooms ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "誰でもチャットルームを読み取れる"
+  ON public.rooms FOR SELECT
+  USING (true);
+
+CREATE POLICY "誰でもチャットルームを作成できる"
+  ON public.rooms FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "ログインユーザーのみチャットルームを更新できる"
+  ON public.rooms FOR UPDATE
+  USING (auth.uid() IS NOT NULL);
+
 -- usersテーブルのRLS
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
