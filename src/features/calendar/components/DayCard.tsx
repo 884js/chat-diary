@@ -63,8 +63,19 @@ export const DayCard = ({
 
   return (
     <div className="border rounded-lg overflow-hidden border-slate-200 bg-white hover:shadow-sm transition-shadow duration-200">
-      <div className="px-5 py-4 bg-ivory-100 border-b border-slate-100">
+      <div className="px-5 py-4 bg-ivory-100 border-b border-slate-100 flex justify-between items-center">
         <h3 className="font-medium text-slate-700">{formattedDate}</h3>
+        {!hasHighlights && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-sm px-3 text-slate-600 hover:bg-indigo-50/50 hover:text-indigo-600 transition-colors"
+            onClick={handleSummarize}
+            disabled={isGeneratingSummary}
+        >
+            {isGeneratingSummary ? '整理中...' : '整理する'}
+          </Button>
+        )}
       </div>
 
       <div className="p-5">
@@ -136,18 +147,6 @@ export const DayCard = ({
             </button>
           </div>
         )}
-
-        <div className="text-right mt-5">
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-sm px-3 text-slate-600 hover:bg-indigo-50/50 hover:text-indigo-600 transition-colors"
-            onClick={handleSummarize}
-            disabled={isGeneratingSummary}
-          >
-            {isGeneratingSummary ? "要約中..." : "要約する"}
-          </Button>
-        </div>
       </div>
     </div>
   );
