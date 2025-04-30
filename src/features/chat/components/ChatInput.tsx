@@ -160,15 +160,15 @@ export function ChatInput({
     let height = 78 + bottomPadding + additionalHeight; // Textareaと送信ボタンなどのベース高さ
 
     if (hasImage) {
-      height += 128; // 画像プレビューぶん
+      height += 128 + 8; // 画像プレビュー + 余白
     }
 
     if (hasError) {
-      height += 40; // エラー文ぶん（おおよその高さ）
+      height += 40; // エラー文の高さ
     }
 
     if (mode === 'reply') {
-      height += replyMessageHeight + 8; // 返信メッセージぶん
+      height += replyMessageHeight + 8; // 返信メッセージ + 余白
     }
 
     onHeightChange(height);
