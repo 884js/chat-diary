@@ -46,8 +46,8 @@ export function MobileBottomNav() {
     <div
       className={`fixed left-0 right-0 z-40 bg-white border-t border-gray-200 transition-all duration-300 ease-in-out ${
         isKeyboardVisible
-          ? "translate-y-full opacity-0"
-          : "translate-y-0 opacity-100 bottom-0"
+          ? 'translate-y-full opacity-0'
+          : 'translate-y-0 opacity-100 bottom-0'
       }`}
     >
       <div className="flex items-center justify-around h-16 md:max-w-5xl md:min-w-5xl md:mx-auto">
@@ -57,13 +57,13 @@ export function MobileBottomNav() {
             href={item.href}
             tabIndex={-1}
             className={`flex flex-col items-center justify-center w-full h-full outline-none ${
-              item.active ? "text-blue-600" : "text-gray-500"
+              item.active ? 'text-blue-600' : 'text-gray-500'
             }`}
           >
             <div className="relative">
               <item.icon
                 className={`h-6 w-6 ${
-                  item.active ? "text-blue-600" : "text-gray-500"
+                  item.active ? 'text-blue-600' : 'text-gray-500'
                 }`}
               />
             </div>

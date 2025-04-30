@@ -25,19 +25,6 @@ export const ChatContainer = () => {
 
   const isSendMessageDisabled = isLoadingRoom;
 
-  // 画像を選択してアップロードする処理
-  const handleImageSelect = async (file: File) => {
-    if (!chatRoom?.id || !currentUser) return;
-
-    // 画像をアップロード
-    const uploadResult = await api.chatRoomMessage.uploadChatImage({
-      file,
-      userId: currentUser?.id,
-    });
-
-    return uploadResult.path || undefined;
-  };
-
   // メッセージ送信処理
   const handleSendMessage = async ({
     imagePath,
@@ -116,7 +103,6 @@ export const ChatContainer = () => {
       <ChatInput
         onSend={handleSendMessage}
         isDisabled={isSendMessageDisabled}
-        onImageSelect={handleImageSelect}
         onHeightChange={setInputHeight}
       />
     </div>

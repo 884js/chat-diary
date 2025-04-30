@@ -1,3 +1,5 @@
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
+import type { ChatRoomMessage } from '@/lib/supabase/api/ChatRoomMessage';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -9,8 +11,6 @@ import {
 import { useStorageImage } from '../../../hooks/useStorageImage';
 import { useMessageAction } from '../contexts/MessageActionContext';
 import { ChatImage } from './ChatImage';
-import type { ChatRoomMessage } from '@/lib/supabase/api/ChatRoomMessage';
-import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 
 export interface MessageProps {
   id: string;

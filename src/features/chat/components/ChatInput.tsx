@@ -1,34 +1,24 @@
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
 import { useKeyboard } from '@/contexts/KeyboardContext';
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import type React from 'react';
 import {
   FiAlertCircle,
   FiCamera,
-  FiImage,
   FiCornerUpRight,
+  FiImage,
   FiSend,
   FiX,
 } from 'react-icons/fi';
 import { useMessageAction } from '../contexts/MessageActionContext';
-
-// 画像アップロード制限
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
-const ALLOWED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-];
-
-// ファイルサイズを人間が読みやすい形式に変換（KB/MB表示）
-const formatFileSize = (bytes: number): string => {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-};
-
+import {
+  ALLOWED_IMAGE_TYPES,
+  MAX_IMAGE_SIZE,
+  formatFileSize,
+  useFileInput,
+} from '../hooks/useFileInput';
 interface ChatInputProps {
   onSend: ({
     imagePath,
@@ -38,25 +28,31 @@ interface ChatInputProps {
     message: string;
   }) => Promise<void>;
   isDisabled: boolean;
-  onImageSelect?: (file: File) => Promise<string | undefined>;
   onHeightChange: (height: number) => void;
 }
 
 export function ChatInput({
   onSend,
   isDisabled,
-  onImageSelect,
   onHeightChange,
 }: ChatInputProps) {
   const { selectedMessage, mode, replyMessageRef } = useMessageAction();
   const [message, setMessage] = useState('');
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const {
+    handleUpload,
+    handleCancelImage,
+    handleImageClick,
+    handleCameraClick,
+    handleImageChange,
+    isUploading,
+    uploadError,
+    fileInputRef,
+    cameraInputRef,
+    textareaRef,
+    selectedImage,
+    imagePreviewUrl,
+  } = useFileInput();
+
   const { isKeyboardVisible, focusOut, focusIn, inputRef } = useKeyboard();
 
   useEffect(() => {
@@ -80,109 +76,20 @@ export function ChatInput({
   const isButtonDisabled =
     (!message.trim() && !selectedImage) || isDisabled || isUploading;
 
-  // 画像選択ハンドラー
-  const handleImageClick = () => {
-    setUploadError(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  // カメラ起動ハンドラー
-  const handleCameraClick = () => {
-    setUploadError(null);
-    if (cameraInputRef.current) {
-      cameraInputRef.current.click();
-    }
-  };
-
-  // 画像選択時の処理
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadError(null);
-
-    // 画像形式チェック
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      setUploadError(
-        `対応していないファイル形式です (${file.type}). JPEG, PNG, GIF, WEBPのみ使用できます。`,
-      );
-      e.target.value = '';
-      return;
-    }
-
-    // ファイルサイズチェック
-    if (file.size > MAX_IMAGE_SIZE) {
-      setUploadError(
-        `ファイルサイズが大きすぎます (${formatFileSize(
-          file.size,
-        )}). ${formatFileSize(MAX_IMAGE_SIZE)}以下の画像を選択してください。`,
-      );
-      e.target.value = '';
-      return;
-    }
-
-    // 画像プレビューを表示
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreviewUrl(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-
-    setSelectedImage(file);
-
-    // ファイル選択をクリア（同じファイルを再選択できるようにする）
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-    if (cameraInputRef.current) {
-      cameraInputRef.current.value = '';
-    }
-  };
-
-  // 画像選択をキャンセルする
-  const handleCancelImage = () => {
-    setSelectedImage(null);
-    setImagePreviewUrl(null);
-    setUploadError(null);
-  };
-
   // メッセージ送信処理
   const handleSend = async () => {
     if (isButtonDisabled) return;
 
-    let imagePath: string | undefined;
-    let hasError = false;
-
-    if (selectedImage && onImageSelect) {
-      try {
-        setIsUploading(true);
-        setUploadError(null);
-        const uploadResult = await onImageSelect(selectedImage);
-        imagePath = uploadResult;
-
-        // 画像選択をクリア
-        handleCancelImage();
-      } catch (error) {
-        console.error('画像アップロードエラー:', error);
-        setUploadError(
-          '画像のアップロードに失敗しました。もう一度お試しください。',
-        );
-        hasError = true;
-      } finally {
-        setIsUploading(false);
+    if (selectedImage) {
+      const imagePath = await handleUpload(selectedImage);
+      if (imagePath) {
+        await onSend({ imagePath, message });
       }
+    } else {
+      await onSend({ imagePath: undefined, message });
     }
-
-    if (hasError) {
-      setMessage(message);
-    }
-
-    await onSend({ imagePath, message });
 
     setMessage('');
-    setSelectedImage(null);
     focusOut();
 
     if (textareaRef.current) {
@@ -326,7 +233,7 @@ export function ChatInput({
         <div className="max-w-5xl mx-auto mb-2" ref={replyMessageRef}>
           <div className="p-2 bg-blue-50 text-blue-600 rounded-md text-xs flex items-start">
             <FiCornerUpRight className="mr-1 mt-0.5 flex-shrink-0" size={14} />
-            <span>{selectedMessage}</span>
+            <MarkdownRenderer content={selectedMessage || ''} />
           </div>
         </div>
       )}
@@ -334,7 +241,7 @@ export function ChatInput({
       {/* 入力エリア */}
       <div className="flex gap-2 max-w-5xl mx-auto items-center">
         {/* 画像選択ボタン */}
-        {onImageSelect && !isDisabled && (
+        {!isDisabled && (
           <>
             <button
               type="button"

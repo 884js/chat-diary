@@ -63,7 +63,10 @@ export const MarkdownRenderer = ({
               </h3>
             );
           },
-          blockquote({ children, ...props }: React.ComponentProps<'blockquote'>) {
+          blockquote({
+            children,
+            ...props
+          }: React.ComponentProps<'blockquote'>) {
             return (
               <blockquote
                 className="border-l-4 border-gray-300 pl-3 italic text-gray-700 my-2"
