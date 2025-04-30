@@ -57,7 +57,7 @@ export function ChatInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { isKeyboardVisible } = useKeyboard();
+  const { isKeyboardVisible, focusOut, focusIn, inputRef } = useKeyboard();
 
   useEffect(() => {
     if (selectedMessage) {
@@ -179,10 +179,12 @@ export function ChatInput({
       setMessage(message);
     }
 
+    await onSend({ imagePath, message });
+
     setMessage('');
     setSelectedImage(null);
+    focusOut();
 
-    await onSend({ imagePath, message });
     if (textareaRef.current) {
       textareaRef.current.blur();
       textareaRef.current.style.height = '40px';
@@ -284,6 +286,7 @@ export function ChatInput({
 
   return (
     <div
+      ref={inputRef}
       className={`bg-white border-t border-slate-200 p-3 w-full z-[60] transition-all duration-300 ${
         isKeyboardVisible ? 'bottom-0 overflow-y-auto' : 'bottom-[64px]'
       }`}
@@ -390,6 +393,7 @@ export function ChatInput({
           placeholder={placeholder}
           className="flex-1 rounded-lg py-2 px-4 border border-slate-300 focus-visible:ring-2 focus-visible:ring-indigo-400 min-h-[40px] max-h-[150px] resize-none"
           onKeyDown={handleKeyDown}
+          onFocus={focusIn}
           disabled={isDisabled || isUploading}
           rows={1}
         />

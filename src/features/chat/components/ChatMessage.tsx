@@ -123,7 +123,7 @@ export function ChatMessage({
         {/* メッセージ内容とメニューボタンを横に並べる */}
         <div className="flex items-start">
           {/* メッセージ内容部分 */}
-          <div className="flex-1 py-1 text-[#222]">
+          <div className="flex-1 text-[#222]">
             {replyTo && (
               <a href={`#${replyTo.id}`}>
                 <div className="text-xs text-gray-500 mb-2">

@@ -30,35 +30,35 @@ export const MarkdownRenderer = ({
           },
           ul({ children, ...props }: React.ComponentProps<'ul'>) {
             return (
-              <ul className="list-disc pl-5 my-2" {...props}>
+              <ul className="list-disc pl-5" {...props}>
                 {children}
               </ul>
             );
           },
           ol({ children, ...props }: React.ComponentProps<'ol'>) {
             return (
-              <ol className="list-decimal pl-5 my-2" {...props}>
+              <ol className="list-decimal pl-5" {...props}>
                 {children}
               </ol>
             );
           },
           h1({ children, ...props }: React.ComponentProps<'h1'>) {
             return (
-              <h1 className="text-xl font-bold my-2" {...props}>
+              <h1 className="text-xl font-bold" {...props}>
                 {children}
               </h1>
             );
           },
           h2({ children, ...props }: React.ComponentProps<'h2'>) {
             return (
-              <h2 className="text-lg font-bold my-2" {...props}>
+              <h2 className="text-lg font-bold" {...props}>
                 {children}
               </h2>
             );
           },
           h3({ children, ...props }: React.ComponentProps<'h3'>) {
             return (
-              <h3 className="text-base font-bold my-2" {...props}>
+              <h3 className="text-base font-bold" {...props}>
                 {children}
               </h3>
             );
@@ -75,7 +75,7 @@ export const MarkdownRenderer = ({
           },
           table({ children, ...props }: React.ComponentProps<'table'>) {
             return (
-              <div className="overflow-x-auto my-2">
+              <div className="overflow-x-auto">
                 <table
                   className="min-w-full border-collapse border border-gray-300"
                   {...props}
@@ -115,7 +115,7 @@ export const MarkdownRenderer = ({
           },
           p({ children, ...props }: React.ComponentProps<'p'>) {
             return (
-              <p className="text-sm break-words my-2" {...props}>
+              <p className="text-sm break-words break-all" {...props}>
                 {children}
               </p>
             );

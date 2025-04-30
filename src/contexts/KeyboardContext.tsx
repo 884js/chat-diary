@@ -5,17 +5,26 @@ import {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 
 type KeyboardContextType = {
   isKeyboardVisible: boolean;
   keyboardHeight: number;
+  hasFocus: boolean;
+  focusOut: () => void;
+  focusIn: () => void;
+  inputRef: React.RefObject<HTMLDivElement> | null;
 };
 
 const KeyboardContext = createContext<KeyboardContextType>({
   isKeyboardVisible: false,
   keyboardHeight: 0,
+  hasFocus: false,
+  focusOut: () => {},
+  focusIn: () => {},
+  inputRef: null,
 });
 
 export const useKeyboard = () => useContext(KeyboardContext);
@@ -24,42 +33,18 @@ export function KeyboardProvider({ children }: { children: ReactNode }) {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [hasFocus, setHasFocus] = useState(false);
+  const inputRef = useRef<HTMLDivElement>(null);
 
-  // フォーカスイベントを使用してキーボード表示状態を検出
-  useEffect(() => {
-    const handleFocus = (e: FocusEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.getAttribute('contenteditable') === 'true'
-      ) {
-        setHasFocus(true);
-        setIsKeyboardVisible(true);
-      }
-    };
+  const focusOut = () => {
+    setHasFocus(false);
+    setIsKeyboardVisible(false);
+    setKeyboardHeight(0);
+  };
 
-    const handleBlur = (e: FocusEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.getAttribute('contenteditable') === 'true'
-      ) {
-        setHasFocus(false);
-        setIsKeyboardVisible(false);
-        setKeyboardHeight(0);
-      }
-    };
-
-    document.addEventListener('focusin', handleFocus);
-    document.addEventListener('focusout', handleBlur);
-
-    return () => {
-      document.removeEventListener('focusin', handleFocus);
-      document.removeEventListener('focusout', handleBlur);
-    };
-  }, []);
+  const focusIn = () => {
+    setHasFocus(true);
+    setIsKeyboardVisible(true);
+  };
 
   // visualViewportを使用してキーボード高さを検出（フォーカス時のみ動作）
   useEffect(() => {
@@ -99,8 +84,31 @@ export function KeyboardProvider({ children }: { children: ReactNode }) {
     };
   }, [hasFocus]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
+        focusOut();
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
-    <KeyboardContext.Provider value={{ isKeyboardVisible, keyboardHeight }}>
+    <KeyboardContext.Provider
+      value={{
+        isKeyboardVisible,
+        keyboardHeight,
+        hasFocus,
+        focusOut,
+        focusIn,
+        inputRef,
+      }}
+    >
       {children}
     </KeyboardContext.Provider>
   );
