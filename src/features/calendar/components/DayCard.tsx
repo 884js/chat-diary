@@ -73,7 +73,7 @@ export const DayCard = ({
             onClick={handleSummarize}
             disabled={isGeneratingSummary}
           >
-            {isGeneratingSummary ? '整理中...' : '整理する'}
+            {isGeneratingSummary ? '実行中...' : 'まとめる'}
           </Button>
         )}
       </div>

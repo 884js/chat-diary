@@ -8,6 +8,7 @@ import { useSummarize } from '@/features/calendar/hooks/useSummarize';
 import { useUpdateCalendarSummary } from '@/features/calendar/hooks/useUpdateCalendarSummary';
 import { useChatRoomMessages } from '@/features/chat/hooks/useChatRoomMessages';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { dateWithTZ } from '@/lib/date-fns';
 import {
   addMonths,
   endOfMonth,
@@ -21,7 +22,7 @@ export default function CalendarPage() {
   const { currentUser } = useCurrentUser();
   const { summarize } = useSummarize();
   const { updateCalendarSummary } = useUpdateCalendarSummary();
-  const [currentDate, setCurrentDate] = useState(() => new Date());
+  const [currentDate, setCurrentDate] = useState(() => dateWithTZ(new Date()));
   const [expandedMessageIds, setExpandedMessageIds] = useState<string[]>([]);
   const [expandedDays, setExpandedDays] = useState<string[]>([]);
 
