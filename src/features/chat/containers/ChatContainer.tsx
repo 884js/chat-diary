@@ -19,8 +19,7 @@ export const ChatContainer = () => {
     () => `calc(${viewportHeight}px - ${inputHeight}px)`,
     [viewportHeight, inputHeight],
   );
-  const { mode, handleSaveEdit, handleSendReplyMessage } =
-    useMessageAction();
+  const { mode, handleSaveEdit, handleSendReplyMessage } = useMessageAction();
 
   const isOwner = currentUser ? currentUser.id === chatRoom?.user_id : false;
 

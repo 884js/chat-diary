@@ -6,7 +6,7 @@ import { useSupabase } from '@/hooks/useSupabase';
 import { createContext, useContext, useRef, useState } from 'react';
 
 const MessageActionContext = createContext<{
-  mode: "edit" | "reply" | null;
+  mode: 'edit' | 'reply' | null;
   messageId: string | null;
   selectedMessage: string | null;
   handleEditMessage: ({

@@ -1,4 +1,3 @@
-import { useCurrentUserRoom } from '@/hooks/useCurrentUserRoom';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -11,6 +10,8 @@ import { useStorageImage } from '../../../hooks/useStorageImage';
 import { useMessageAction } from '../contexts/MessageActionContext';
 import { ChatImage } from './ChatImage';
 import type { ChatRoomMessage } from '@/lib/supabase/api/ChatRoomMessage';
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
+
 export interface MessageProps {
   id: string;
   content: string;
@@ -95,7 +96,7 @@ export function ChatMessage({
   return (
     <div
       className={`flex mb-4 group relative transition-all duration-150 rounded-sm px-2 py-1 w-full text-left ${
-        messageId === id ? "bg-gray-100" : ""
+        messageId === id ? 'bg-gray-100' : ''
       }`}
       id={id}
       aria-label="メッセージ"
@@ -133,9 +134,7 @@ export function ChatMessage({
             )}
             {content && (
               <div className="relative overflow-hidden">
-                <p className="text-sm break-words whitespace-pre-wrap">
-                  {content}
-                </p>
+                <MarkdownRenderer content={content} />
               </div>
             )}
 

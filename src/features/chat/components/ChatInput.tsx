@@ -149,7 +149,9 @@ export function ChatInput({
   };
 
   // メッセージ送信処理
-  const handleSend = async () => {
+  const handleSend = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
     if (isButtonDisabled) return;
 
     let imagePath: string | undefined;
@@ -273,7 +275,14 @@ export function ChatInput({
       isKeyboardVisible,
       mode,
     });
-  }, [message, imagePreviewUrl, uploadError, isKeyboardVisible, mode, selectedMessage]);
+  }, [
+    message,
+    imagePreviewUrl,
+    uploadError,
+    isKeyboardVisible,
+    mode,
+    selectedMessage,
+  ]);
 
   return (
     <div
