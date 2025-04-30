@@ -82,7 +82,7 @@ export const DayCard = ({
         {hasHighlights && (
           <div className="mb-5 rounded-md">
             <h4 className="text-sm font-medium text-indigo-700 mb-2">
-              この日の要約
+              この日のできごと
             </h4>
 
             {aiGeneratedHighlights.good.length > 0 && (
