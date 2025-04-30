@@ -7,7 +7,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useCurrentUserRoom } from '@/hooks/useCurrentUserRoom';
 import { useSupabase } from '@/hooks/useSupabase';
 import { useEffect, useMemo, useState } from 'react';
-import { useEditMessage } from '../hooks/useEditMessage';
+import { useEditMessage } from '../contexts/EditMessageContext';
 
 export const ChatContainer = () => {
   const { api } = useSupabase();
@@ -19,7 +19,13 @@ export const ChatContainer = () => {
     () => `calc(${viewportHeight}px - ${inputHeight}px)`,
     [viewportHeight, inputHeight],
   );
-  const { isEditMode, editMessageId, handleEditMessage, handleCancelEdit, handleSaveEdit, editMessage } = useEditMessage();
+  const {
+    isEditMode,
+    handleEditMessage,
+    handleCancelEdit,
+    handleSaveEdit,
+    editMessage,
+  } = useEditMessage();
 
   const isOwner = currentUser ? currentUser.id === chatRoom?.user_id : false;
 
@@ -105,7 +111,6 @@ export const ChatContainer = () => {
           messages={chatRoom?.chat_room_messages || []}
           isOwner={isOwner}
           isChatEnded={false}
-          onEditMessage={handleEditMessage}
         />
       </div>
       {/* 入力部分 */}
@@ -114,7 +119,6 @@ export const ChatContainer = () => {
         isDisabled={isSendMessageDisabled}
         onImageSelect={handleImageSelect}
         onHeightChange={setInputHeight}
-        editMessage={editMessage || undefined}
       />
     </div>
   );

@@ -154,7 +154,10 @@ export class ChatRoomMessageApi {
     };
   }
 
-  async editMessage({ messageId, content }: { messageId: string; content: string }) {
+  async editMessage({
+    messageId,
+    content,
+  }: { messageId: string; content: string }) {
     const { error } = await this.supabase
       .from('room_messages')
       .update({ content })

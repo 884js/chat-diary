@@ -1,9 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { ChatRoomApi } from './ChatRoom';
+import { ChatRoomMessageApi } from './ChatRoomMessage';
 import { CalendarApi } from './calendar';
 import { ChatSettingApi } from './chatSetting';
 import { UserApi } from './user';
-import { ChatRoomMessageApi } from './ChatRoomMessage';
 export class SupabaseApi {
   constructor(private supabase: SupabaseClient) {}
 

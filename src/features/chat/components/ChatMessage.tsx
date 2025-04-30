@@ -1,15 +1,16 @@
+import { useCurrentUserRoom } from '@/hooks/useCurrentUserRoom';
+import { useSupabase } from '@/hooks/useSupabase';
 import Image from 'next/image';
-import { useStorageImage } from '../../../hooks/useStorageImage';
-import { ChatImage } from './ChatImage';
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
+  FiCornerUpRight,
+  FiEdit,
   FiMoreVertical,
   FiTrash,
-  FiEdit,
-  FiCornerUpRight,
 } from 'react-icons/fi';
-import { useSupabase } from '@/hooks/useSupabase';
-import { useCurrentUserRoom } from '@/hooks/useCurrentUserRoom';
+import { useStorageImage } from '../../../hooks/useStorageImage';
+import { useEditMessage } from '../contexts/EditMessageContext';
+import { ChatImage } from './ChatImage';
 
 export interface MessageProps {
   id: string;
@@ -25,7 +26,6 @@ export interface MessageProps {
   imagePath?: string | null;
   isOwner: boolean;
   onScrollToBottom: () => void;
-  onEditMessage: (messageId: string, message: string) => void;
 }
 
 export function ChatMessage({
@@ -34,9 +34,9 @@ export function ChatMessage({
   timestamp,
   imagePath = null,
   owner,
-  onEditMessage,
 }: MessageProps) {
   const { refetchRoom } = useCurrentUserRoom();
+  const { handleEditMessage, editMessageId } = useEditMessage();
 
   const { api } = useSupabase();
   const { imageUrl: storageImageUrl } = useStorageImage({
@@ -80,7 +80,7 @@ export function ChatMessage({
   };
 
   const handleEdit = () => {
-    onEditMessage(id, content);
+    handleEditMessage(id, content);
     setIsMenuOpen(false);
   };
 
@@ -91,8 +91,10 @@ export function ChatMessage({
 
   return (
     <div
-      className={'flex mb-4 group relative transition-all duration-150 rounded-sm px-2 py-1 w-full text-left'}
-      aria-label="チャットメッセージ"
+      className={`flex mb-4 group relative transition-all duration-150 rounded-sm px-2 py-1 w-full text-left ${
+        editMessageId === id ? 'bg-gray-100' : ''
+      }`}
+      aria-label="メッセージ"
     >
       {/* プロフィール画像 */}
       <div className="shrink-0 w-10 h-10 rounded-md overflow-hidden mr-3">

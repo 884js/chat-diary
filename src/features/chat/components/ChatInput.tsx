@@ -4,6 +4,7 @@ import { useKeyboard } from '@/contexts/KeyboardContext';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type React from 'react';
 import { FiAlertCircle, FiCamera, FiImage, FiSend, FiX } from 'react-icons/fi';
+import { useEditMessage } from '../contexts/EditMessageContext';
 
 // 画像アップロード制限
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -32,7 +33,6 @@ interface ChatInputProps {
   isDisabled: boolean;
   onImageSelect?: (file: File) => Promise<string | undefined>;
   onHeightChange: (height: number) => void;
-  editMessage?: string;
 }
 
 export function ChatInput({
@@ -40,8 +40,8 @@ export function ChatInput({
   isDisabled,
   onImageSelect,
   onHeightChange,
-  editMessage,
 }: ChatInputProps) {
+  const { editMessage } = useEditMessage();
   const [message, setMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
@@ -255,7 +255,7 @@ export function ChatInput({
   return (
     <div
       className={`bg-white border-t border-slate-200 p-3 w-full z-[60] transition-all duration-300 ${
-        isKeyboardVisible ? "bottom-0 overflow-y-auto" : "bottom-[64px]"
+        isKeyboardVisible ? 'bottom-0 overflow-y-auto' : 'bottom-[64px]'
       }`}
     >
       {/* エラーメッセージ */}
@@ -290,7 +290,7 @@ export function ChatInput({
       )}
 
       {/* 入力エリア */}
-      <div className="flex items-end gap-2 max-w-5xl mx-auto">
+      <div className="flex gap-2 max-w-5xl mx-auto items-center">
         {/* 画像選択ボタン */}
         {onImageSelect && !isDisabled && (
           <>
@@ -299,7 +299,7 @@ export function ChatInput({
               onClick={handleImageClick}
               disabled={isUploading}
               className={`rounded-full w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 transition-colors ${
-                isUploading ? "opacity-50 cursor-not-allowed" : ""
+                isUploading ? 'opacity-50 cursor-not-allowed' : ''
               }`}
               aria-label="画像を選択"
               title={`画像を選択 (最大 ${formatFileSize(MAX_IMAGE_SIZE)})`}
@@ -313,7 +313,7 @@ export function ChatInput({
               onClick={handleCameraClick}
               disabled={isUploading}
               className={`md:hidden rounded-full w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 transition-colors ${
-                isUploading ? "opacity-50 cursor-not-allowed" : ""
+                isUploading ? 'opacity-50 cursor-not-allowed' : ''
               }`}
               aria-label="カメラを起動"
               title="カメラを起動"
@@ -328,7 +328,7 @@ export function ChatInput({
           type="file"
           ref={fileInputRef}
           onChange={handleImageChange}
-          accept={ALLOWED_IMAGE_TYPES.join(",")}
+          accept={ALLOWED_IMAGE_TYPES.join(',')}
           className="hidden"
           disabled={isUploading}
         />
@@ -338,7 +338,7 @@ export function ChatInput({
           type="file"
           ref={cameraInputRef}
           onChange={handleImageChange}
-          accept={ALLOWED_IMAGE_TYPES.join(",")}
+          accept={ALLOWED_IMAGE_TYPES.join(',')}
           capture="environment"
           className="hidden"
           disabled={isUploading}
@@ -359,8 +359,8 @@ export function ChatInput({
           disabled={isButtonDisabled}
           className={`rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md transition-all duration-200 ${
             isButtonDisabled
-              ? "bg-slate-300 cursor-not-allowed"
-              : "bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 hover:shadow-lg transform hover:scale-105"
+              ? 'bg-slate-300 cursor-not-allowed'
+              : 'bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 hover:shadow-lg transform hover:scale-105'
           }`}
           aria-label="メッセージを送信"
         >

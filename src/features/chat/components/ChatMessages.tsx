@@ -1,6 +1,6 @@
 import { formatDate, isSameDay, parseISO } from '@/lib/date-fns';
-import type { ChatRoomMessage } from '@/lib/supabase/api/ChatRoomMessage';
 import type { ChatRoom } from '@/lib/supabase/api/ChatRoom';
+import type { ChatRoomMessage } from '@/lib/supabase/api/ChatRoomMessage';
 import { useEffect, useMemo } from 'react';
 import { useAutoScrollBottom } from '../hooks/useAutoScrollBottom';
 import { ChatMessage } from './ChatMessage';
@@ -11,7 +11,6 @@ type Props = {
   messages: ChatRoomMessage[];
   isChatEnded: boolean;
   isOwner: boolean;
-  onEditMessage: (messageId: string, message: string) => void;
 };
 
 // 日付区切り線コンポーネント
@@ -30,7 +29,6 @@ export const ChatMessages = ({
   isLoading,
   messages,
   isOwner,
-  onEditMessage,
 }: Props) => {
   const { messagesEndRef, handleScrollToBottom } = useAutoScrollBottom();
 
@@ -126,7 +124,6 @@ export const ChatMessages = ({
               timestamp={formatDate(msg.created_at || '', 'HH:mm')}
               imagePath={msg.image_path}
               onScrollToBottom={handleScrollToBottom}
-              onEditMessage={onEditMessage}
             />
           </div>
         );
