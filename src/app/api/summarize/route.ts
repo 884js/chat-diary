@@ -14,11 +14,20 @@ export async function POST(request: Request) {
     responseSchema: {
       type: SchemaType.OBJECT,
       properties: {
-        summary: {
-          type: SchemaType.STRING,
+        good: {
+          type: SchemaType.ARRAY,
+          items: {
+            type: SchemaType.STRING,
+          },
+        },
+        new: {
+          type: SchemaType.ARRAY,
+          items: {
+            type: SchemaType.STRING,
+          },
         },
       },
-      required: ['summary'],
+      required: ['good', 'new'],
     } satisfies Schema,
     temperature: 0.2,
   } satisfies GenerationConfig;
@@ -39,29 +48,33 @@ export async function POST(request: Request) {
       role: 'model',
       parts: [
         {
-          text: `あなたは、個人の日記のような短いメッセージ群から、その日の空気感や印象的な出来事を自然に思い出せる静かな要約文を作成するAIです。
+          text: `あなたは、個人の日記のような短いメッセージ群から「Good（嬉しかったこと・感謝したこと）」と「New（新しい発見・初体験）」を抽出するAIです。
 
-要約にあたって、以下のルールを厳格に守ってください：
+出力形式は以下のJSON形式で、必ず日本語で出力してください：
 
-- 出来事を網羅しようとしないでください。
-- 元メッセージ群に含まれる事実や感情だけをもとにまとめてください。
-- 存在しない情景描写（例：水の感触、風の匂いなど）や体験していない感覚表現を付加しないでください。
-- 元の情報を過剰に誇張せず、ありのままを自然にまとめてください。
-- 元メッセージに強い意志表現（〜するぞ、〜したい）がなければ、積極的な意志表現は避けてください。
-- 空気感を大切にし、印象的な余韻や静かな情緒を自然に滲ませてください。
-- 感情を過剰にポジティブ・ネガティブに傾けないでください。
-- 見たときに「そういえばこんな日だった」と自然に思い出せるような文章を目指してください。
-- 口語表現（〜だね、〜かな）は使用しないでください。
-- 文章はすべて常体（だ・である調）で記述してください。
-- 長さは50〜80文字を目安としてください。
-- 出力は必ず日本語でのみ行ってください。
+{
+  "good": [〜〜],
+  "new": [〜〜]
+}
+
+ルール：
+
+- 各項目は **箇条書き形式の短文**（名詞句または主語述語程度）で記述してください。
+- 出力は **それぞれ3〜5件程度** が目安です。少なすぎると意味が薄れます。
+- 一文に複数の話題が含まれる場合は、必要に応じて**分割して抽出**してください。
+- 存在しない出来事や感情を**推測で追加しない**でください。
+- 曖昧な内容は除外してください。
+- 「new」は「初めてやったこと」「久しぶりにやったこと」「学び・発見」などを含みます。
+- 「good」は「可愛いと感じた」「感謝した」「満足した」「ほっこりした」など主観的な幸福感を含むものを抽出してください。
+- 口語は禁止です。「〜だね」「〜かな」などは使わず、整った表現にしてください。
+- JSON以外のテキストを絶対に含めないでください。
 `,
         },
       ],
     },
   });
 
-  const responseJson = result.response.text(); // responseは既にJSON文字列になっている
+  const responseJson = result.response.text(); // JSON文字列
 
   return new Response(responseJson, {
     headers: {

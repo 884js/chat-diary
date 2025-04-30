@@ -8,7 +8,10 @@ export type CalendarDay = {
   owner_id: string;
   date: string; // 'YYYY-MM-DD'
   has_posts: boolean;
-  summary: string | null;
+  ai_generated_highlights: {
+    good: string[];
+    new: string[];
+  };
   summary_status: 'none' | 'manual' | 'auto';
   created_at: string;
   updated_at: string;

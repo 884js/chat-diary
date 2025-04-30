@@ -1,12 +1,13 @@
 'use client';
 
 import { useSupabase } from '@/hooks/useSupabase';
+import type { Json } from '@/lib/supabase/databaseTypes';
 import { useMutation } from '@tanstack/react-query';
 
 type UpdateCalendarSummaryParams = {
   userId: string;
   dateKey: string; // 'yyyy-MM-dd' 形式
-  summary: string;
+  json: Json;
 };
 
 export function useUpdateCalendarSummary() {
@@ -19,11 +20,11 @@ export function useUpdateCalendarSummary() {
     isError,
     reset,
   } = useMutation<void, Error, UpdateCalendarSummaryParams>({
-    mutationFn: async ({ userId, dateKey, summary }) => {
+    mutationFn: async ({ userId, dateKey, json }) => {
       const result = await api.calendar.updateCalendarSummary(
         userId,
         dateKey,
-        summary,
+        json,
       );
 
       if (!result.success) {

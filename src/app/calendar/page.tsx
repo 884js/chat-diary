@@ -70,10 +70,12 @@ export default function CalendarPage() {
     }
 
     const result = await summarize({ messagesText });
+    console.log(result);
+
     await updateCalendarSummary({
       userId: currentUser?.id || '',
       dateKey,
-      summary: result.summary || '',
+      json: result,
     });
     refetchCalendarDays();
   };

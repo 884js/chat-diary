@@ -1,6 +1,6 @@
 import { formatDate } from '@/lib/date-fns';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '../databaseTypes';
+import type { Database, Json } from '../databaseTypes';
 
 export class CalendarApi {
   constructor(private supabase: SupabaseClient<Database>) {}
@@ -26,15 +26,11 @@ export class CalendarApi {
     return data;
   }
 
-  async updateCalendarSummary(
-    userId: string,
-    dateKey: string,
-    summary: string,
-  ) {
+  async updateCalendarSummary(userId: string, dateKey: string, json: Json) {
     const { error } = await this.supabase
       .from('calendar_days')
       .update({
-        summary,
+        ai_generated_highlights: json,
         summary_status: 'manual',
         updated_at: new Date().toISOString(),
       })

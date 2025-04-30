@@ -3,12 +3,16 @@ import { format, parseISO } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { useState } from 'react';
 import { CalendarMessage } from './CalendarMessage';
+import { FiCheck, FiStar } from 'react-icons/fi';
 
 type DayCardProps = {
   day: {
     id: string;
     date: string;
-    summary: string | null;
+    ai_generated_highlights: {
+      good: string[];
+      new: string[];
+    };
   };
   messages: Array<{
     id: string;
@@ -37,7 +41,11 @@ export const DayCard = ({
   const formattedDate = format(parseISO(day.date), 'M月d日(eee)', {
     locale: ja,
   });
-  const summary = day.summary || '';
+
+  const aiGeneratedHighlights = day.ai_generated_highlights || {
+    good: [],
+    new: [],
+  };
   const displayedMessages = isExpandedDay ? messages : messages.slice(0, 3);
 
   const handleSummarize = async () => {
@@ -49,6 +57,10 @@ export const DayCard = ({
     }
   };
 
+  const hasHighlights =
+    aiGeneratedHighlights.good.length > 0 ||
+    aiGeneratedHighlights.new.length > 0;
+
   return (
     <div className="border rounded-lg overflow-hidden border-slate-200 bg-white hover:shadow-sm transition-shadow duration-200">
       <div className="px-5 py-4 bg-ivory-100 border-b border-slate-100">
@@ -56,12 +68,47 @@ export const DayCard = ({
       </div>
 
       <div className="p-5">
-        {summary && (
-          <div className="mb-5 p-4 bg-indigo-50/60 rounded-md border border-indigo-100">
+        {hasHighlights && (
+          <div className="mb-5 rounded-md">
             <h4 className="text-sm font-medium text-indigo-700 mb-2">
               この日の要約
             </h4>
-            <p className="text-sm text-slate-700 leading-relaxed">{summary}</p>
+
+            {aiGeneratedHighlights.good.length > 0 && (
+              <div className="p-4 mb-3 bg-green-50/60 rounded-md border border-green-100">
+                <div className="flex items-center mb-2">
+                  <FiCheck className="text-green-600 mr-1" />
+                  <h5 className="text-sm font-medium text-green-700">
+                    良かったこと
+                  </h5>
+                </div>
+                <ul className="pl-6 list-disc text-sm text-slate-700">
+                  {aiGeneratedHighlights.good.map((item, index) => (
+                    <li key={`good-${item}`} className="mb-1 leading-relaxed">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {aiGeneratedHighlights.new.length > 0 && (
+              <div className="p-4 bg-blue-50/60 rounded-md border border-blue-100">
+                <div className="flex items-center mb-2">
+                  <FiStar className="text-blue-600 mr-1" />
+                  <h5 className="text-sm font-medium text-blue-700">
+                    新しいこと
+                  </h5>
+                </div>
+                <ul className="pl-6 list-disc text-sm text-slate-700">
+                  {aiGeneratedHighlights.new.map((item, index) => (
+                    <li key={`new-${item}`} className="mb-1 leading-relaxed">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
 
@@ -85,7 +132,7 @@ export const DayCard = ({
               onClick={() => onToggleExpandDay(dateKey)}
               className="text-xs text-indigo-500/70 hover:text-indigo-500 hover:underline transition-colors"
             >
-              {isExpandedDay ? '閉じる' : `さらに${messages.length - 3}件表示`}
+              {isExpandedDay ? "閉じる" : `さらに${messages.length - 3}件表示`}
             </button>
           </div>
         )}
@@ -98,7 +145,7 @@ export const DayCard = ({
             onClick={handleSummarize}
             disabled={isGeneratingSummary}
           >
-            {isGeneratingSummary ? '要約中...' : '要約する'}
+            {isGeneratingSummary ? "要約中..." : "要約する"}
           </Button>
         </div>
       </div>

@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS public.calendar_days (
   owner_id UUID REFERENCES public.users(id) ON DELETE CASCADE, -- 誰のカレンダーか
   date DATE NOT NULL, -- 対象日
   has_posts BOOLEAN DEFAULT FALSE, -- その日に投稿があったか
-  summary TEXT, -- 要約文（なければNULL）
+  ai_generated_highlights JSONB DEFAULT NULL,
   summary_status TEXT DEFAULT 'none' CHECK (summary_status IN ('none', 'manual', 'auto')), -- 要約ステータス
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now(),

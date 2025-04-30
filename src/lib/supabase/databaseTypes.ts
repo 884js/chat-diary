@@ -11,32 +11,32 @@ export type Database = {
     Tables: {
       calendar_days: {
         Row: {
+          ai_generated_highlights: Json | null;
           created_at: string | null;
           date: string;
           has_posts: boolean | null;
           id: string;
           owner_id: string | null;
-          summary: string | null;
           summary_status: string | null;
           updated_at: string | null;
         };
         Insert: {
+          ai_generated_highlights?: Json | null;
           created_at?: string | null;
           date: string;
           has_posts?: boolean | null;
           id?: string;
           owner_id?: string | null;
-          summary?: string | null;
           summary_status?: string | null;
           updated_at?: string | null;
         };
         Update: {
+          ai_generated_highlights?: Json | null;
           created_at?: string | null;
           date?: string;
           has_posts?: boolean | null;
           id?: string;
           owner_id?: string | null;
-          summary?: string | null;
           summary_status?: string | null;
           updated_at?: string | null;
         };

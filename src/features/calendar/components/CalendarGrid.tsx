@@ -4,7 +4,10 @@ type CalendarGridProps = {
   calendarDays: Array<{
     id: string;
     date: string;
-    summary: string | null;
+    ai_generated_highlights: {
+      good: string[];
+      new: string[];
+    };
   }>;
   messagesByDate: Record<
     string,
