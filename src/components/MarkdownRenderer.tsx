@@ -42,6 +42,13 @@ export const MarkdownRenderer = ({
               </ol>
             );
           },
+          li({ children, ...props }: React.ComponentProps<'li'>) {
+            return (
+              <li className="list-disc text-sm" {...props}>
+                {children}
+              </li>
+            );
+          },
           h1({ children, ...props }: React.ComponentProps<'h1'>) {
             return (
               <h1 className="text-xl font-bold" {...props}>
